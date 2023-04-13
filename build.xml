@@ -91,6 +91,16 @@
     </java>
   </target>
 
+  <target name="minijava" depends="compile">
+    <java classname="MiniJava" classpath="build/classes;lib/java-cup-11b.jar"
+          fork="true"
+          input="SamplePrograms/Example.java">
+      <arg value = "-S"/>
+      <arg value = "pixelmon.txt"/>
+      <assertions> <enable/> </assertions>
+    </java>
+  </target>
+
   <!-- targets for running test cases -->
 
   <!-- you may want to expand on what's here! -->
