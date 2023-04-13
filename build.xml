@@ -96,7 +96,7 @@
           fork="true"
           input="SamplePrograms/Example.java">
       <arg value = "-S"/>
-      <arg value = "SamplePrograms/SampleMiniJavaPrograms/Factorial.java"/>
+      <arg value = "SamplePrograms/SampleMiniJavaPrograms/QuickSort.java"/>
       <assertions> <enable/> </assertions>
     </java>
   </target>

@@ -114,7 +114,6 @@ everything = [{letter}{digit}[ \t]"("")""[""]""{""}""+""=""&""!""<""-"";"","".""
 /* Token definitions */
 
 /* reserved words (first so that they take precedence over identifiers) */
-"display" { return symbol(sym.DISPLAY); }
 "class" {return symbol(sym.CLASS); }
 "public" {return symbol(sym.PUBLIC); }
 "static" {return symbol(sym.STATIC); }
