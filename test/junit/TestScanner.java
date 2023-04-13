@@ -23,9 +23,9 @@ import org.junit.Test;
     cases for Minijava.java itself rather than the underlying modules as is
     shown here.
 */
-public class TestDemoLanguageScanner {
+public class TestScanner {
 
-    public static final String TEST_FILES_LOCATION = "test/resources/DemoLanguageScanner/";
+    public static final String TEST_FILES_LOCATION = "test/resources/ScannerTests/";
     public static final String TEST_FILES_INPUT_EXTENSION = ".java";
     public static final String TEST_FILES_EXPECTED_EXTENSION = ".expected";
 
