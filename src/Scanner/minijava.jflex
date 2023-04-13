@@ -107,6 +107,7 @@ letter = [a-zA-Z]
 digit = [0-9]
 eol = [\r\n]
 white = {eol}|[ \t]
+everything = [{letter}{digit}[ \t]"("")""[""]""{""}""+""=""&""!""<""-"";"","".""_"]
 
 %%
 
@@ -164,7 +165,13 @@ white = {eol}|[ \t]
 {letter} ({letter}|{digit}|_)* {
   return symbol(sym.IDENTIFIER, yytext());
 }
+(0|[1-9]{digit}*) { return symbol(sym.INTEGER_LITERAL, yytext()); }
 
+/* comments */
+(
+  "/*"(({everything}|"/"|{eol})"*"*({everything}|{eol}))*"*"+"/"|"//"{everything}*{eol}) {
+    // ignore comment
+  }
 
 /* whitespace */
 {white}+ { /* ignore whitespace */ }

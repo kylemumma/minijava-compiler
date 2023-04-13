@@ -49,6 +49,7 @@ terminal SEMICOLON, COMMA, DOT;
 
 /* identifiers */
 terminal String IDENTIFIER;
+terminal String INTEGER_LITERAL;
 
 
 /* Nonterminals (constructed by parser): */
