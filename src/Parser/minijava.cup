@@ -15,12 +15,37 @@ import java_cup.runtime.*;
 
 /* reserved words */
 terminal DISPLAY;
+terminal CLASS;
+terminal PUBLIC;
+terminal STATIC;
+terminal VOID;
+terminal MAIN;
+terminal STRING;
+terminal EXTENDS;
+terminal RETURN;
+terminal INT;
+terminal BOOLEAN;
+terminal IF;
+terminal ELSE;
+terminal WHILE;
+terminal PRINT;
+terminal TRUE;
+terminal FALSE;
+terminal THIS;
+terminal NEW;
+terminal LENGTH;
 
 /* operators */
 terminal PLUS, BECOMES;
+terminal AND, NOT;
+terminal LESSTHAN;
+terminal MINUS, TIMES;
 
 /* delimiters */
-terminal LPAREN, RPAREN, SEMICOLON;
+terminal LPAREN, RPAREN;
+terminal LBRACK, RBRACK;
+terminal LCURLY, RCURLY;
+terminal SEMICOLON, COMMA, DOT;
 
 /* identifiers */
 terminal String IDENTIFIER;
