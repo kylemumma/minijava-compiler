@@ -96,7 +96,7 @@
           fork="true"
           input="SamplePrograms/Example.java">
       <arg value = "-S"/>
-      <arg value = "pixelmon.txt"/>
+      <arg value = "SamplePrograms/Example.java"/>
       <assertions> <enable/> </assertions>
     </java>
   </target>

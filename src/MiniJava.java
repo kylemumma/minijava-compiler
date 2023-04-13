@@ -11,7 +11,8 @@ public class MiniJava {
         try {
             // create a scanner on the input file
             ComplexSymbolFactory sf = new ComplexSymbolFactory();
-            Reader in = new BufferedReader(new InputStreamReader(System.in));
+            InputStream istream = new FileInputStream(args[1]);
+            Reader in = new BufferedReader(new InputStreamReader(istream));
             scanner s = new scanner(in, sf);
             Symbol t = s.next_token();
             while (t.sym != sym.EOF) { 
