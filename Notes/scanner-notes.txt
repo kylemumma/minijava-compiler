@@ -1,0 +1,4 @@
+- We did the majority of the project together in person via pair
+programming. We both also made a few minor additions and/or bug fixes
+on our own.
+- We both did a pretty even amount of work, I think we split it up well.
