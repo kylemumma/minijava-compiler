@@ -18,12 +18,18 @@ public class MiniJava {
             InputStream istream = new FileInputStream(args[1]);
             Reader in = new BufferedReader(new InputStreamReader(istream));
             scanner s = new scanner(in, sf);
+            // will get set to 1 if there are any syntax errors found while scanning
+            int syntaxErr = 0;
             Symbol t = s.next_token();
             while (t.sym != sym.EOF) { 
+                if (t.sym == sym.error)
+                    syntaxErr = 1;
+
                 // print each token that we scan
                 System.out.print(s.symbolToString(t) + " ");
                 t = s.next_token();
             }
+            System.exit(syntaxErr);
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
             // that we're not expecting (a bug!)
@@ -31,6 +37,7 @@ public class MiniJava {
                         e.toString());
             // print out a stack dump
             e.printStackTrace();
+            System.exit(1);
         }
     }
 }
