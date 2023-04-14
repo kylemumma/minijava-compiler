@@ -63,4 +63,30 @@ public class TestScanner {
     public void testSimpleArithmetic() {
         runScannerTestCase("SimpleArithmetic");
     }
+
+    /*
+        A more robust test for a factorial program
+    */
+    @Test
+    public void testFactorial() {
+        runScannerTestCase("Factorial");
+    }
+
+    /*
+        A test on a file with a bunch of random characters,
+        containing syntax errors
+    */
+    @Test
+    public void testRandom() {
+        runScannerTestCase("random");
+    }
+
+    /*
+        A test on a copy of simple arithmetic,
+        but with a few syntax errors
+    */
+    @Test
+    public void testSimpleArithmeticError() {
+        runScannerTestCase("SimpleArithmeticError");
+    }
 }

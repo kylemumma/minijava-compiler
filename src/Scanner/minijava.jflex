@@ -94,6 +94,8 @@ import Parser.sym;
      ComplexSymbol cs = (ComplexSymbol)s; 
      if (cs.sym == sym.IDENTIFIER) {
        return "ID(" + (String)cs.value + ")";
+     } else if (cs.sym == sym.INTEGER_LITERAL) {
+       return cs.getName() + "(" + (String)cs.value + ")";
      } else if (cs.sym == sym.error) {
        return "<UNEXPECTED(" + (String)cs.value + ")>";
      } else {
@@ -107,7 +109,6 @@ letter = [a-zA-Z]
 digit = [0-9]
 eol = [\r\n]
 white = {eol}|[ \t]
-everything = [{letter}{digit}[ \t]"("")""[""]""{""}""+""=""&""!""<""-"";"","".""_"]
 
 %%
 
@@ -134,7 +135,8 @@ everything = [{letter}{digit}[ \t]"("")""[""]""{""}""+""=""&""!""<""-"";"","".""
 "new" { return symbol(sym.NEW); }
 "length" { return symbol(sym.LENGTH); }
 
-
+/* comments */
+("/*"([^"*"]|"*"+[^"*""/"])*"*"+"/")|("//"[^\r\n]*(\r|\n)?) {/* ignore comment */}
 
 
 /* operators */
@@ -165,12 +167,6 @@ everything = [{letter}{digit}[ \t]"("")""[""]""{""}""+""=""&""!""<""-"";"","".""
   return symbol(sym.IDENTIFIER, yytext());
 }
 (0|[1-9]{digit}*) { return symbol(sym.INTEGER_LITERAL, yytext()); }
-
-/* comments */
-(
-  "/*"(({everything}|"/"|{eol})"*"*({everything}|{eol}))*"*"+"/"|"//"{everything}*{eol}) {
-    // ignore comment
-  }
 
 /* whitespace */
 {white}+ { /* ignore whitespace */ }
