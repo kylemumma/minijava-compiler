@@ -8,6 +8,10 @@ public class MiniJava {
     public static void main(String[] args) {
         // args[0] = -S
         // args[1] = "<filename>.java"
+        if (args.length != 2 || !args[0].equals("-S")) {
+            System.out.println("Usage: java MiniJava -S <filename>.java");
+            System.exit(1);
+        }
         try {
             // create a scanner on the input file
             ComplexSymbolFactory sf = new ComplexSymbolFactory();
