@@ -9,7 +9,7 @@ public class MiniJava {
         // args[0] = -S
         // args[1] = "<filename>.java"
         if (args.length != 2 || !args[0].equals("-S")) {
-            System.out.println("Usage: java MiniJava -S <filename>.java");
+            System.err.println("Usage: java MiniJava -S <filename>.java");
             System.exit(1);
         }
         try {
