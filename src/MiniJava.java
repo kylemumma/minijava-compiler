@@ -9,13 +9,27 @@ public class MiniJava {
         // args[0] = -S
         // args[1] = "<filename>.java"
         if (args.length != 2 || !args[0].equals("-S")) {
-            System.err.println("Usage: java MiniJava -S <filename>.java");
+            System.err.println("Usage: java MiniJava <option> <filename>");
+            System.exit(1);
+        } else if (args[0].equals("-S")) {
+            scan(args[1]);
+        } else if (args[0].equals("-A")) {
+            parse(args[1]);
+        } else if (args[0].equals("-P")) {
+            parse(args[1]);
+        } else {
+            System.err.println("Usage: java MiniJava <option> <filename>");
             System.exit(1);
         }
+        
+        
+    }
+
+    static void scan(String filename) {
         try {
             // create a scanner on the input file
             ComplexSymbolFactory sf = new ComplexSymbolFactory();
-            InputStream istream = new FileInputStream(args[1]);
+            InputStream istream = new FileInputStream(filename);
             Reader in = new BufferedReader(new InputStreamReader(istream));
             scanner s = new scanner(in, sf);
             // will get set to 1 if there are any syntax errors found while scanning
@@ -39,6 +53,36 @@ public class MiniJava {
             // print out a stack dump
             e.printStackTrace();
             System.exit(1);
+        }
+    }
+    static void parse(String filename) {
+        try {
+            // create a scanner on the input file
+            ComplexSymbolFactory sf = new ComplexSymbolFactory();
+            InputStream istream = new FileInputStream(filename);
+            Reader in = new BufferedReader(new InputStreamReader(istream));
+            scanner s = new scanner(in, sf);
+            parser p = new parser(s, sf);
+            Symbol root;
+            // replace p.parse() with p.debug_parse() in the next line to see
+            // a trace of parser shift/reduce actions during parsing
+            root = p.parse();
+            // We know the following unchecked cast is safe because of the
+            // declarations in the CUP input file giving the type of the
+            // root node, so we suppress warnings for the next assignment.
+            @SuppressWarnings("unchecked")
+            List<Statement> program = (List<Statement>)root.value;
+            for (Statement statement: program) {
+                statement.accept(new PrettyPrintVisitor());
+                System.out.print("\n");
+            }
+        } catch (Exception e) {
+            // yuck: some kind of error in the compiler implementation
+            // that we're not expecting (a bug!)
+            System.err.println("Unexpected internal compiler error: " + 
+                               e.toString());
+            // print out a stack dump
+            e.printStackTrace();
         }
     }
 }
