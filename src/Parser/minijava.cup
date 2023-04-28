@@ -70,7 +70,7 @@ non terminal VarDeclaration;
 non terminal MethodDeclaration;
 non terminal Type;
 non terminal Statement;
-non terminal Expression;
+non terminal Exp Expression;
 non terminal SimpleClassDeclaration;
 non terminal ExtendsClassDeclaration;
 non terminal VarDeclarations;
@@ -156,15 +156,25 @@ Type ::= INT LBRACK RBRACK
         | INT 
         | IDENTIFIER;
 
-Operator ::= AND | LESSTHAN | PLUS | MINUS | TIMES;
-
 ExpressionList ::= Expression CommaExpressions | /* epsilon */;
 CommaExpressions ::= COMMA Expression CommaExpressions | /* epsilon */;
 
-Expression ::= Expression Operator Expression
-            | Expression LBRACK Expression RBRACK
-            | Expression DOT LENGTH
-            | Expression DOT IDENTIFIER LPAREN ExpressionList RPAREN
+Expression ::= Expression:e1 TIMES Expression:e2
+                {: RESULT = new Times(e1, e2, e1xleft); :}
+            | Expression:e1 MINUS Expression:e2
+                {: RESULT = new Minus(e1, e2, e1xleft); :}
+            | Expression:e1 PLUS Expression:e2
+                {: RESULT = new Plus(e1, e2, e1xleft); :}
+            | Expression:e1 LESSTHAN Expression:e2
+                {: RESULT = new LessThan(e1, e2, e1xleft); :}
+            | Expression:e1 AND Expression:e2
+                {: RESULT = new And(e1, e2, e1xleft); :}
+            | Expression:e1 LBRACK Expression:e2 RBRACK
+                {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
+            | Expression:e1 DOT LENGTH
+                {: RESULT = new ArrayLength(e1, e1xleft); :}
+            | Expression:e1 DOT IDENTIFIER LPAREN ExpressionList:e2 RPAREN
+                //{: RESULT = new Call(e1, /*todo nonterm id*/, e2, e1xleft); :}
             | INTEGER_LITERAL
             | TRUE
             | FALSE
