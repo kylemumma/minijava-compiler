@@ -48,25 +48,54 @@ terminal SEMICOLON, COMMA, DOT;
 
 /* identifiers */
 terminal String IDENTIFIER;
-terminal String INTEGER_LITERAL;
+terminal Integer INTEGER_LITERAL;
 
 
 /* Nonterminals (constructed by parser): */
 
-nonterminal List<Statement> Program;
-nonterminal Statement Statement;
-nonterminal Assign AssignStatement;
-nonterminal Exp Expression;
-nonterminal Identifier Identifier;
+/* ------------ OLD NONTERMINALS --------------
+non terminal List<Statement> Program;
+non terminal Statement Statement;
+non terminal Assign AssignStatement;
+non terminal Exp Expression;
+non terminal Identifier Identifier;
+*/
+// todo: add types to these, corresponding to the AST node type for the given
+// production (i think)
+non terminal Goal;
+non terminal MainClass;
+non terminal ClassDeclarations;
+non terminal ClassDeclaration;
+non terminal VarDeclaration;
+non terminal MethodDeclaration;
+non terminal Type;
+non terminal Statement;
+non terminal Expression;
+non terminal OptionalExtends;
+non terminal VarDeclarations;
+non terminal MethodDeclarations;
+non terminal ParameterList;
+non terminal CommaParameters;
+non terminal Statements;
+non terminal Operator;
+non terminal ExpressionList;
+non terminal CommaExpressions;
 
+// why is this a nonterm in the minijava grammar,
+// do i need this, do i need 1 for int-literal?
+// non terminal Identifier;
 
 /* Precedence declarations: */
+// todo: precendence
+precedence left LBRACK, RBRACK;
 
-precedence left PLUS;
-
+precedence left AND;
+precedence left LESSTHAN;
+precedence left PLUS, MINUS;
+precedence left TIMES;
 
 /* Productions: */
-
+/* ----------- OLD PRODUCTIONS ------------
 Program ::= Statement:s
             {: List<Statement> p = new LinkedList<Statement>();
                p.add(s);
@@ -89,3 +118,57 @@ Expression    ::= IDENTIFIER:name
             {: RESULT = new Plus(arg1, arg2, arg1xleft); :}
         | LPAREN Expression:expr RPAREN
             {: RESULT = expr; :};
+*/
+
+Goal ::= MainClass ClassDeclarations;
+
+ClassDeclarations ::= ClassDeclaration ClassDeclarations | /* epsilon */;
+
+MainClass ::= CLASS IDENTIFIER LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENTIFIER RPAREN LCURLY Statement RCURLY RCURLY;
+
+ClassDeclaration ::= CLASS IDENTIFIER OptionalExtends LCURLY VarDeclarations MethodDeclarations RCURLY;
+
+OptionalExtends ::= EXTENDS IDENTIFIER | /* epsilon */;
+
+VarDeclarations ::= VarDeclaration VarDeclarations | /* epsilon */;
+
+MethodDeclarations ::= MethodDeclaration MethodDeclarations | /* epsilon */;
+
+VarDeclaration ::= Type IDENTIFIER;
+
+MethodDeclaration ::= PUBLIC Type IDENTIFIER LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RBRACK;
+
+ParameterList ::= Type IDENTIFIER CommaParameters | /* epsilon */;
+CommaParameters ::= COMMA Type IDENTIFIER CommaParameters | /* epsilon */;
+
+Statements ::= Statement Statements | /* epsilon */;
+
+Type ::= INT LBRACK RBRACK 
+        | BOOLEAN 
+        | INT 
+        | IDENTIFIER;
+
+Statement ::= LBRACK Statements RBRACK | IF LPAREN Expression RPAREN Statement ELSE Statement
+            | WHILE LPAREN Expression RPAREN Statement 
+            | PRINT LPAREN Expression RPAREN SEMICOLON
+            | IDENTIFIER BECOMES Expression SEMICOLON 
+            | IDENTIFIER LBRACK Expression RBRACK BECOMES Expression SEMICOLON;
+
+Operator ::= AND | LESSTHAN | PLUS | MINUS | TIMES;
+
+ExpressionList ::= Expression CommaExpressions | /* epsilon */;
+CommaExpressions ::= COMMA Expression CommaExpressions | /* epsilon */;
+
+Expression ::= Expression Operator Expression
+            | Expression LBRACK Expression RBRACK
+            | Expression DOT LENGTH
+            | Expression DOT IDENTIFIER LPAREN ExpressionList RPAREN
+            | INTEGER_LITERAL
+            | TRUE
+            | FALSE
+            | IDENTIFIER
+            | THIS
+            | NEW INT LBRACK Expression RBRACK
+            | NEW IDENTIFIER LPAREN RPAREN
+            | NOT Expression
+            | LPAREN Expression RPAREN;
