@@ -126,7 +126,7 @@ Expression    ::= IDENTIFIER:name
 
 Goal ::= MainClass ClassDeclarations;
 
-ClassDeclarations ::= ClassDeclaration ClassDeclarations | /* epsilon */;
+ClassDeclarations ::= ClassDeclarations ClassDeclaration | /* epsilon */;
 
 MainClass ::= CLASS IDENTIFIER LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENTIFIER RPAREN LCURLY Statement RCURLY RCURLY;
 
@@ -134,13 +134,13 @@ ClassDeclaration ::= SimpleClassDeclaration | ExtendsClassDeclaration;
 SimpleClassDeclaration ::= CLASS IDENTIFIER LCURLY VarDeclarations MethodDeclarations RCURLY;
 ExtendsClassDeclaration ::= CLASS IDENTIFIER EXTENDS IDENTIFIER LCURLY VarDeclarations MethodDeclarations RCURLY;
 
-VarDeclarations ::= VarDeclaration VarDeclarations | /* epsilon */;
+VarDeclarations ::= VarDeclarations VarDeclaration | /* epsilon */;
 
-MethodDeclarations ::= MethodDeclaration MethodDeclarations | /* epsilon */;
+MethodDeclarations ::= MethodDeclarations MethodDeclaration | /* epsilon */;
 
 VarDeclaration ::= Type IDENTIFIER SEMICOLON;
 
-MethodDeclaration ::= PUBLIC Type IDENTIFIER LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RBRACK;
+MethodDeclaration ::= PUBLIC Type IDENTIFIER LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RCURLY;
 
 ParameterList ::= Type IDENTIFIER CommaParameters | /* epsilon */;
 CommaParameters ::= COMMA Type IDENTIFIER CommaParameters | /* epsilon */;
@@ -152,7 +152,7 @@ Type ::= INT LBRACK RBRACK
         | INT 
         | IDENTIFIER;
 
-Statement ::= LBRACK Statements RBRACK | IF LPAREN Expression RPAREN Statement ELSE Statement
+Statement ::= LCURLY Statements RCURLY | IF LPAREN Expression RPAREN Statement ELSE Statement
             | WHILE LPAREN Expression RPAREN Statement 
             | PRINT LPAREN Expression RPAREN SEMICOLON
             | IDENTIFIER BECOMES Expression SEMICOLON 
