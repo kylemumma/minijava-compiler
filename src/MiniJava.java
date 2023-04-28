@@ -1,7 +1,10 @@
 import Scanner.*;
-import Parser.sym;
+import Parser.*;
+import AST.*;
+import AST.Visitor.*;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
+import java.util.*;
 import java.io.*;
 
 public class MiniJava {

@@ -135,28 +135,26 @@ SimpleClassDeclaration ::= CLASS IDENTIFIER LCURLY VarDeclarations MethodDeclara
 ExtendsClassDeclaration ::= CLASS IDENTIFIER EXTENDS IDENTIFIER LCURLY VarDeclarations MethodDeclarations RCURLY;
 
 VarDeclarations ::= VarDeclarations VarDeclaration | /* epsilon */;
-
-MethodDeclarations ::= MethodDeclarations MethodDeclaration | /* epsilon */;
-
 VarDeclaration ::= Type IDENTIFIER SEMICOLON;
 
+MethodDeclarations ::= MethodDeclaration MethodDeclarations | /* epsilon */;
 MethodDeclaration ::= PUBLIC Type IDENTIFIER LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RCURLY;
 
 ParameterList ::= Type IDENTIFIER CommaParameters | /* epsilon */;
 CommaParameters ::= COMMA Type IDENTIFIER CommaParameters | /* epsilon */;
 
 Statements ::= Statement Statements | /* epsilon */;
+Statement ::= LCURLY Statements RCURLY 
+            | IF LPAREN Expression RPAREN Statement ELSE Statement
+            | WHILE LPAREN Expression RPAREN Statement 
+            | PRINT LPAREN Expression RPAREN SEMICOLON
+            | IDENTIFIER BECOMES Expression SEMICOLON 
+            | IDENTIFIER LBRACK Expression RBRACK BECOMES Expression SEMICOLON;
 
 Type ::= INT LBRACK RBRACK 
         | BOOLEAN 
         | INT 
         | IDENTIFIER;
-
-Statement ::= LCURLY Statements RCURLY | IF LPAREN Expression RPAREN Statement ELSE Statement
-            | WHILE LPAREN Expression RPAREN Statement 
-            | PRINT LPAREN Expression RPAREN SEMICOLON
-            | IDENTIFIER BECOMES Expression SEMICOLON 
-            | IDENTIFIER LBRACK Expression RBRACK BECOMES Expression SEMICOLON;
 
 Operator ::= AND | LESSTHAN | PLUS | MINUS | TIMES;
 
