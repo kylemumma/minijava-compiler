@@ -71,7 +71,8 @@ non terminal MethodDeclaration;
 non terminal Type;
 non terminal Statement;
 non terminal Expression;
-non terminal OptionalExtends;
+non terminal SimpleClassDeclaration;
+non terminal ExtendsClassDeclaration;
 non terminal VarDeclarations;
 non terminal MethodDeclarations;
 non terminal ParameterList;
@@ -126,9 +127,9 @@ ClassDeclarations ::= ClassDeclaration ClassDeclarations | /* epsilon */;
 
 MainClass ::= CLASS IDENTIFIER LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENTIFIER RPAREN LCURLY Statement RCURLY RCURLY;
 
-ClassDeclaration ::= CLASS IDENTIFIER OptionalExtends LCURLY VarDeclarations MethodDeclarations RCURLY;
-
-OptionalExtends ::= EXTENDS IDENTIFIER | /* epsilon */;
+ClassDeclaration ::= SimpleClassDeclaration | ExtendsClassDeclaration;
+SimpleClassDeclaration ::= CLASS IDENTIFIER LCURLY VarDeclarations MethodDeclarations RCURLY;
+ExtendsClassDeclaration ::= CLASS IDENTIFIER EXTENDS IDENTIFIER LCURLY VarDeclarations MethodDeclarations RCURLY;
 
 VarDeclarations ::= VarDeclaration VarDeclarations | /* epsilon */;
 
