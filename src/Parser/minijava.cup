@@ -135,7 +135,7 @@ VarDeclarations ::= VarDeclaration VarDeclarations | /* epsilon */;
 
 MethodDeclarations ::= MethodDeclaration MethodDeclarations | /* epsilon */;
 
-VarDeclaration ::= Type IDENTIFIER;
+VarDeclaration ::= Type IDENTIFIER SEMICOLON;
 
 MethodDeclaration ::= PUBLIC Type IDENTIFIER LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RBRACK;
 
