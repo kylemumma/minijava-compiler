@@ -89,6 +89,9 @@ non terminal CommaExpressions;
 /* Precedence declarations: */
 // todo: precendence
 precedence left LBRACK, RBRACK;
+precedence left LPAREN, RPAREN;
+precedence left DOT;
+precedence left NOT;
 
 precedence left AND;
 precedence left LESSTHAN;
