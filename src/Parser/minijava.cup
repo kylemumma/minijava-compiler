@@ -81,6 +81,7 @@ non terminal Statements;
 non terminal Operator;
 non terminal ExpressionList;
 non terminal CommaExpressions;
+non terminal Identifier Identifier;
 
 // why is this a nonterm in the minijava grammar,
 // do i need this, do i need 1 for int-literal?
@@ -128,33 +129,33 @@ Goal ::= MainClass ClassDeclarations;
 
 ClassDeclarations ::= ClassDeclarations ClassDeclaration | /* epsilon */;
 
-MainClass ::= CLASS IDENTIFIER LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENTIFIER RPAREN LCURLY Statement RCURLY RCURLY;
+MainClass ::= CLASS Identifier LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier RPAREN LCURLY Statement RCURLY RCURLY;
 
 ClassDeclaration ::= SimpleClassDeclaration | ExtendsClassDeclaration;
-SimpleClassDeclaration ::= CLASS IDENTIFIER LCURLY VarDeclarations MethodDeclarations RCURLY;
-ExtendsClassDeclaration ::= CLASS IDENTIFIER EXTENDS IDENTIFIER LCURLY VarDeclarations MethodDeclarations RCURLY;
+SimpleClassDeclaration ::= CLASS Identifier LCURLY VarDeclarations MethodDeclarations RCURLY;
+ExtendsClassDeclaration ::= CLASS Identifier EXTENDS Identifier LCURLY VarDeclarations MethodDeclarations RCURLY;
 
 VarDeclarations ::= VarDeclarations VarDeclaration | /* epsilon */;
-VarDeclaration ::= Type IDENTIFIER SEMICOLON;
+VarDeclaration ::= Type Identifier SEMICOLON;
 
 MethodDeclarations ::= MethodDeclaration MethodDeclarations | /* epsilon */;
-MethodDeclaration ::= PUBLIC Type IDENTIFIER LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RCURLY;
+MethodDeclaration ::= PUBLIC Type Identifier LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RCURLY;
 
-ParameterList ::= Type IDENTIFIER CommaParameters | /* epsilon */;
-CommaParameters ::= COMMA Type IDENTIFIER CommaParameters | /* epsilon */;
+ParameterList ::= Type Identifier CommaParameters | /* epsilon */;
+CommaParameters ::= COMMA Type Identifier CommaParameters | /* epsilon */;
 
 Statements ::= Statement Statements | /* epsilon */;
 Statement ::= LCURLY Statements RCURLY 
             | IF LPAREN Expression RPAREN Statement ELSE Statement
             | WHILE LPAREN Expression RPAREN Statement 
             | PRINT LPAREN Expression RPAREN SEMICOLON
-            | IDENTIFIER BECOMES Expression SEMICOLON 
-            | IDENTIFIER LBRACK Expression RBRACK BECOMES Expression SEMICOLON;
+            | Identifier BECOMES Expression SEMICOLON 
+            | Identifier LBRACK Expression RBRACK BECOMES Expression SEMICOLON;
 
 Type ::= INT LBRACK RBRACK 
         | BOOLEAN 
         | INT 
-        | IDENTIFIER;
+        | Identifier;
 
 ExpressionList ::= Expression CommaExpressions | /* epsilon */;
 CommaExpressions ::= COMMA Expression CommaExpressions | /* epsilon */;
@@ -173,14 +174,26 @@ Expression ::= Expression:e1 TIMES Expression:e2
                 {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
             | Expression:e1 DOT LENGTH
                 {: RESULT = new ArrayLength(e1, e1xleft); :}
-            | Expression:e1 DOT IDENTIFIER LPAREN ExpressionList:e2 RPAREN
-                //{: RESULT = new Call(e1, /*todo nonterm id*/, e2, e1xleft); :}
-            | INTEGER_LITERAL
-            | TRUE
-            | FALSE
-            | IDENTIFIER
-            | THIS
-            | NEW INT LBRACK Expression RBRACK
-            | NEW IDENTIFIER LPAREN RPAREN
-            | NOT Expression
-            | LPAREN Expression RPAREN;
+            | Expression:e1 DOT Identifier:id LPAREN ExpressionList:e2 RPAREN
+                {: RESULT = new Call(e1, id, e2, e1xleft); :}
+            | INTEGER_LITERAL:e
+                {: RESULT = new IntegerLiteral(Integer.parseInt((String)e.value), exleft); :}
+            | TRUE:e
+                {: RESULT = new True(exleft); :}
+            | FALSE:e
+                {: RESULT = new False(exleft); :}
+            | IDENTIFIER:id
+                {: RESULT = new IdentifierExpression((String)id.value, idxleft); :}
+            | THIS:e
+                {: RESULT = new This(exleft); :}
+            | NEW:n INT LBRACK Expression:e RBRACK
+                {: RESULT = new NewArray(e, nxleft); :}
+            | NEW:n Identifier:id LPAREN RPAREN
+                {: RESULT = new NewObject(id, nxleft); :}
+            | NOT:n Expression:e
+                {: RESULT = new Not(e, nxleft); :}
+            | LPAREN Expression:e RPAREN
+                {: RESULT = e; :};
+
+Identifier ::= IDENTIFIER:e
+                {: RESULT = new Identifier((String)e.value, exleft) :};     
