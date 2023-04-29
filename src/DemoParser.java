@@ -18,7 +18,9 @@ public class DemoParser {
             Symbol root;
             // replace p.parse() with p.debug_parse() in the next line to see
             // a trace of parser shift/reduce actions during parsing
+            System.out.println("hi");
             root = p.parse();
+            System.out.println("bye");
             // We know the following unchecked cast is safe because of the
             // declarations in the CUP input file giving the type of the
             // root node, so we suppress warnings for the next assignment.

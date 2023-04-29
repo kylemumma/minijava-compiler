@@ -48,7 +48,7 @@ terminal SEMICOLON, COMMA, DOT;
 
 /* identifiers */
 terminal String IDENTIFIER;
-terminal Integer INTEGER_LITERAL;
+terminal String INTEGER_LITERAL;
 
 
 /* Nonterminals (constructed by parser): */
@@ -127,6 +127,7 @@ Expression    ::= IDENTIFIER:name
 
 Goal ::= MainClass ClassDeclarations;
 
+
 ClassDeclarations ::= ClassDeclarations ClassDeclaration | /* epsilon */;
 
 MainClass ::= CLASS Identifier LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier RPAREN LCURLY Statement RCURLY RCURLY;
@@ -157,7 +158,15 @@ Type ::= INT LBRACK RBRACK
         | INT 
         | Identifier;
 
-ExpressionList ::= Expression CommaExpressions | /* epsilon */;
+ExpressionList ::= Expression:e CommaExpressions:l
+{: 
+ ExpList list = new ExpList(exleft);
+ list.add(e);
+ RESULT = list; // add others
+ :}
+| /* epsilon */
+{: RESULT = new ExpList(new Location(0, 0)); :};
+
 CommaExpressions ::= COMMA Expression CommaExpressions | /* epsilon */;
 
 Expression ::= Expression:e1 TIMES Expression:e2
@@ -175,15 +184,15 @@ Expression ::= Expression:e1 TIMES Expression:e2
             | Expression:e1 DOT LENGTH
                 {: RESULT = new ArrayLength(e1, e1xleft); :}
             | Expression:e1 DOT Identifier:id LPAREN ExpressionList:e2 RPAREN
-                {: RESULT = new Call(e1, id, e2, e1xleft); :}
+                {: RESULT = new Call(e1, id, (ExpList) e2, e1xleft); :}
             | INTEGER_LITERAL:e
-                {: RESULT = new IntegerLiteral(Integer.parseInt((String)e.value), exleft); :}
+                {: RESULT = new IntegerLiteral(Integer.parseInt(e), exleft); :}
             | TRUE:e
                 {: RESULT = new True(exleft); :}
             | FALSE:e
                 {: RESULT = new False(exleft); :}
             | IDENTIFIER:id
-                {: RESULT = new IdentifierExpression((String)id.value, idxleft); :}
+                {: RESULT = new IdentifierExp(id, idxleft); :}
             | THIS:e
                 {: RESULT = new This(exleft); :}
             | NEW:n INT LBRACK Expression:e RBRACK
@@ -195,5 +204,5 @@ Expression ::= Expression:e1 TIMES Expression:e2
             | LPAREN Expression:e RPAREN
                 {: RESULT = e; :};
 
-Identifier ::= IDENTIFIER:e
-                {: RESULT = new Identifier((String)e.value, exleft) :};     
+Identifier  ::= IDENTIFIER:id
+                {: RESULT = new Identifier(id, idxleft); :};   
