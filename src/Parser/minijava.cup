@@ -52,16 +52,6 @@ terminal Integer INTEGER_LITERAL;
 
 
 /* Nonterminals (constructed by parser): */
-
-/* ------------ OLD NONTERMINALS --------------
-non terminal List<Statement> Program;
-non terminal Statement Statement;
-non terminal Assign AssignStatement;
-non terminal Exp Expression;
-non terminal Identifier Identifier;
-*/
-// todo: add types to these, corresponding to the AST node type for the given
-// production (i think)
 non terminal Program Goal;
 non terminal MainClass MainClass;
 
@@ -74,7 +64,6 @@ non terminal ClassDeclExtends ClassDeclExtends;
 non terminal Type Type;
 
 non terminal VarDeclList VarDeclList;
-non terminal VarDeclList NonEmptyVarDeclList;
 non terminal VarDecl VarDecl;
 
 non terminal MethodDeclList MethodDeclList;
@@ -93,12 +82,7 @@ non terminal StatementList StatementList;
 non terminal StatementList NonEmptyStatementList;
 non terminal Statement Statement;
 
-// why is this a nonterm in the minijava grammar,
-// do i need this, do i need 1 for int-literal?
-// non terminal Identifier;
-
 /* Precedence declarations: */
-// todo: precendence
 precedence left AND;
 precedence left LESSTHAN;
 precedence left PLUS, MINUS;
@@ -108,31 +92,6 @@ precedence left NOT;
 precedence left LPAREN, RPAREN, LBRACK, RBRACK, DOT;
 
 /* Productions: */
-/* ----------- OLD PRODUCTIONS ------------
-Program ::= Statement:s
-            {: List<Statement> p = new LinkedList<Statement>();
-               p.add(s);
-               RESULT = p; :}
-        | Program:p Statement:s
-            {: p.add(s); RESULT = p; :};
-
-Statement   ::= AssignStatement:s
-                {: RESULT = s; :};
-
-AssignStatement ::= Identifier:id BECOMES Expression:expr SEMICOLON
-                    {: RESULT = new Assign(id, expr, idxleft); :};
-
-Identifier  ::= IDENTIFIER:id
-                {: RESULT = new Identifier(id, idxleft); :};
-
-Expression    ::= IDENTIFIER:name
-            {: RESULT = new IdentifierExp(name, namexleft); :}
-        | Expression:arg1 PLUS Expression:arg2
-            {: RESULT = new Plus(arg1, arg2, arg1xleft); :}
-        | LPAREN Expression:expr RPAREN
-            {: RESULT = expr; :};
-*/
-
 Goal ::= MainClass:c ClassDeclList:c1
 {: RESULT = new Program(c, c1, cxleft); :};
 
