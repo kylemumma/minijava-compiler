@@ -48,7 +48,7 @@ terminal SEMICOLON, COMMA, DOT;
 
 /* identifiers */
 terminal String IDENTIFIER;
-terminal String INTEGER_LITERAL;
+terminal Integer INTEGER_LITERAL;
 
 
 /* Nonterminals (constructed by parser): */
@@ -68,20 +68,24 @@ non terminal ClassDeclarations;
 non terminal ClassDeclaration;
 non terminal VarDeclaration;
 non terminal MethodDeclaration;
-non terminal Type;
-non terminal Statement;
-non terminal Exp Expression;
+non terminal Type Type;
+
 non terminal SimpleClassDeclaration;
 non terminal ExtendsClassDeclaration;
 non terminal VarDeclarations;
 non terminal MethodDeclarations;
-non terminal ParameterList;
-non terminal CommaParameters;
-non terminal Statements;
-non terminal Operator;
-non terminal ExpressionList;
-non terminal CommaExpressions;
+
+non terminal FormalList FormalList;
+non terminal Formal Formal;
+
+non terminal Exp Expression;
+non terminal ExpList ExpressionList;
+
 non terminal Identifier Identifier;
+
+non terminal StatementList StatementList;
+non terminal StatementList NonEmptyStatementList;
+non terminal Statement Statement;
 
 // why is this a nonterm in the minijava grammar,
 // do i need this, do i need 1 for int-literal?
@@ -89,15 +93,13 @@ non terminal Identifier Identifier;
 
 /* Precedence declarations: */
 // todo: precendence
-precedence left LBRACK, RBRACK;
-precedence left LPAREN, RPAREN;
-precedence left DOT;
-precedence left NOT;
-
 precedence left AND;
 precedence left LESSTHAN;
 precedence left PLUS, MINUS;
 precedence left TIMES;
+precedence left NEW;
+precedence left NOT;
+precedence left LPAREN, RPAREN, LBRACK, RBRACK, DOT;
 
 /* Productions: */
 /* ----------- OLD PRODUCTIONS ------------
@@ -127,7 +129,6 @@ Expression    ::= IDENTIFIER:name
 
 Goal ::= MainClass ClassDeclarations;
 
-
 ClassDeclarations ::= ClassDeclarations ClassDeclaration | /* epsilon */;
 
 MainClass ::= CLASS Identifier LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier RPAREN LCURLY Statement RCURLY RCURLY;
@@ -140,34 +141,62 @@ VarDeclarations ::= VarDeclarations VarDeclaration | /* epsilon */;
 VarDeclaration ::= Type Identifier SEMICOLON;
 
 MethodDeclarations ::= MethodDeclaration MethodDeclarations | /* epsilon */;
-MethodDeclaration ::= PUBLIC Type Identifier LPAREN ParameterList RPAREN LCURLY VarDeclarations Statements RETURN Expression SEMICOLON RCURLY;
+MethodDeclaration ::= PUBLIC Type Identifier LPAREN FormalList RPAREN LCURLY VarDeclarations StatementList RETURN Expression SEMICOLON RCURLY;
 
-ParameterList ::= Type Identifier CommaParameters | /* epsilon */;
-CommaParameters ::= COMMA Type Identifier CommaParameters | /* epsilon */;
+FormalList ::= Formal:f
+                {: FormalList fl = new FormalList(fxleft);
+                    fl.add(f);
+                    RESULT = fl; :}
+            | FormalList:fl COMMA Formal:f
+                {: fl.add(f); RESULT = fl; :}
+            | /* epsilon */
+                {: RESULT = new FormalList(new Location(0,0)); :};
 
-Statements ::= Statement Statements | /* epsilon */;
-Statement ::= LCURLY Statements RCURLY 
-            | IF LPAREN Expression RPAREN Statement ELSE Statement
-            | WHILE LPAREN Expression RPAREN Statement 
-            | PRINT LPAREN Expression RPAREN SEMICOLON
-            | Identifier BECOMES Expression SEMICOLON 
-            | Identifier LBRACK Expression RBRACK BECOMES Expression SEMICOLON;
+Formal ::= Type:t Identifier:id
+            {: RESULT = new Formal(t, id, txleft); :};
 
-Type ::= INT LBRACK RBRACK 
-        | BOOLEAN 
-        | INT 
-        | Identifier;
+StatementList ::= NonEmptyStatementList:sl
+                    {: RESULT = sl; :}
+                | /* epsilon */
+                    {: RESULT = new StatementList(new Location(0,0)); :};
 
-ExpressionList ::= Expression:e CommaExpressions:l
-{: 
- ExpList list = new ExpList(exleft);
- list.add(e);
- RESULT = list; // add others
- :}
-| /* epsilon */
-{: RESULT = new ExpList(new Location(0, 0)); :};
+NonEmptyStatementList ::= Statement:s
+                            {: StatementList sl = new StatementList(sxleft);
+                            sl.add(s); 
+                            RESULT = sl; :}
+                        | NonEmptyStatementList:sl Statement:s
+                            {: sl.add(s); RESULT = sl; :};
 
-CommaExpressions ::= COMMA Expression CommaExpressions | /* epsilon */;
+Statement ::= LCURLY:f StatementList:sl RCURLY 
+                {: RESULT = new Block(sl, fxleft); :}
+            | IF:f LPAREN Expression:e RPAREN Statement:s1 ELSE Statement:s2
+                {: RESULT = new If(e, s1, s2, fxleft); :}
+            | WHILE:f LPAREN Expression:e RPAREN Statement:s
+                {: RESULT = new While(e, s, fxleft); :}
+            | PRINT:f LPAREN Expression:e RPAREN SEMICOLON
+                {: RESULT = new Print(e, fxleft); :}
+            | Identifier:id BECOMES Expression:e SEMICOLON
+                {: RESULT = new Assign(id, e, idxleft); :}
+            | Identifier:id LBRACK Expression:e1 RBRACK BECOMES Expression:e2 SEMICOLON
+                {: RESULT = new ArrayAssign(id, e1, e2, idxleft); :};
+
+Type ::= INT:t LBRACK RBRACK
+            {: RESULT = new IntArrayType(txleft); :}
+        | BOOLEAN:t
+            {: RESULT = new BooleanType(txleft); :}
+        | INT:t
+            {: RESULT = new IntegerType(txleft); :}
+        | IDENTIFIER:t
+            {: RESULT = new IdentifierType(t, txleft); :};
+
+ExpressionList ::= Expression:e
+                    {: ExpList el = new ExpList(exleft);
+                        el.add(e); 
+                        RESULT = el; :}
+                | ExpressionList:el COMMA Expression:e
+                    {: el.add(e); RESULT = el; :}
+                | /* epsilon */
+                    {: RESULT = new ExpList(new Location(0, 0)); :};
 
 Expression ::= Expression:e1 TIMES Expression:e2
                 {: RESULT = new Times(e1, e2, e1xleft); :}
@@ -184,9 +213,9 @@ Expression ::= Expression:e1 TIMES Expression:e2
             | Expression:e1 DOT LENGTH
                 {: RESULT = new ArrayLength(e1, e1xleft); :}
             | Expression:e1 DOT Identifier:id LPAREN ExpressionList:e2 RPAREN
-                {: RESULT = new Call(e1, id, (ExpList) e2, e1xleft); :}
+                {: RESULT = new Call(e1, id, e2, e1xleft); :}
             | INTEGER_LITERAL:e
-                {: RESULT = new IntegerLiteral(Integer.parseInt(e), exleft); :}
+                {: RESULT = new IntegerLiteral(e, exleft); :}
             | TRUE:e
                 {: RESULT = new True(exleft); :}
             | FALSE:e
@@ -204,5 +233,5 @@ Expression ::= Expression:e1 TIMES Expression:e2
             | LPAREN Expression:e RPAREN
                 {: RESULT = e; :};
 
-Identifier  ::= IDENTIFIER:id
-                {: RESULT = new Identifier(id, idxleft); :};   
+Identifier ::= IDENTIFIER:id
+                {: RESULT = new Identifier(id, idxleft); :};

@@ -166,7 +166,7 @@ white = {eol}|[ \t]
 {letter} ({letter}|{digit}|_)* {
   return symbol(sym.IDENTIFIER, yytext());
 }
-(0|[1-9]{digit}*) { return symbol(sym.INTEGER_LITERAL, yytext()); }
+(0|[1-9]{digit}*) { return symbol(sym.INTEGER_LITERAL, Integer.parseInt(yytext())); }
 
 /* whitespace */
 {white}+ { /* ignore whitespace */ }
