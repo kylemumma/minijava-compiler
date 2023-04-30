@@ -43,8 +43,10 @@ public class ASTPrintVisitor implements Visitor {
     println("Program");
     indent++;
     n.m.accept(this);
+    println("");
     for ( int i = 0; i < n.cl.size(); i++ ) {
         n.cl.get(i).accept(this);
+        println("");
     }
     indent--;
   }
@@ -70,9 +72,11 @@ public class ASTPrintVisitor implements Visitor {
     indent++;
     for ( int i = 0; i < n.vl.size(); i++ ) {
         n.vl.get(i).accept(this);
+        println("");
     }
     for ( int i = 0; i < n.ml.size(); i++ ) {
         n.ml.get(i).accept(this);
+        println("");
     }
     indent--;
   }
@@ -90,9 +94,11 @@ public class ASTPrintVisitor implements Visitor {
     indent++;
     for ( int i = 0; i < n.vl.size(); i++ ) {
         n.vl.get(i).accept(this);
+        println("");
     }
     for ( int i = 0; i < n.ml.size(); i++ ) {
         n.ml.get(i).accept(this);
+        println("");
     }
     indent--;
   }
@@ -122,21 +128,27 @@ public class ASTPrintVisitor implements Visitor {
     print("returns ");
     n.t.accept(this);
     println("");
+    println("parameters: ");
     for ( int i = 0; i < n.fl.size(); i++ ) {
-        println("parameters: ");
         indent++;
         n.fl.get(i).accept(this);
+        println("");
         indent--;
     }
     for ( int i = 0; i < n.vl.size(); i++ ) {
+        indent++;
         n.vl.get(i).accept(this);
+        println("");
+        indent--;
     }
     for ( int i = 0; i < n.sl.size(); i++ ) {
+        indent++;
         n.sl.get(i).accept(this);
+        println("");
+        indent--;
     }
     print("Return ");
     n.e.accept(this);
-    println("");
     indent--;
   }
 
@@ -146,7 +158,6 @@ public class ASTPrintVisitor implements Visitor {
     n.t.accept(this);
     print(" ");
     n.i.accept(this);
-    println("");
   }
 
   public void visit(IntArrayType n) {
@@ -172,6 +183,7 @@ public class ASTPrintVisitor implements Visitor {
     indent++;
     for ( int i = 0; i < n.sl.size(); i++ ) {
         n.sl.get(i).accept(this);
+        println("");
     }
     indent--;
   }
@@ -211,7 +223,6 @@ public class ASTPrintVisitor implements Visitor {
     println("Print");
     indent++;
     n.e.accept(this);
-    println("");
     indent--;
   }
   
