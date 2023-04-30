@@ -66,14 +66,19 @@ non terminal Goal;
 non terminal MainClass;
 non terminal ClassDeclarations;
 non terminal ClassDeclaration;
-non terminal VarDeclaration;
-non terminal MethodDeclaration;
-non terminal Type Type;
 
 non terminal SimpleClassDeclaration;
 non terminal ExtendsClassDeclaration;
-non terminal VarDeclarations;
-non terminal MethodDeclarations;
+
+non terminal Type Type;
+
+non terminal VarDeclList VarDeclList;
+non terminal VarDeclList NonEmptyVarDeclList;
+non terminal VarDecl VarDecl;
+
+non terminal MethodDeclList MethodDeclList;
+non terminal MethodDeclList NonEmptyMethodDeclList;
+non terminal MethodDecl MethodDecl;
 
 non terminal FormalList FormalList;
 non terminal Formal Formal;
@@ -134,14 +139,30 @@ ClassDeclarations ::= ClassDeclarations ClassDeclaration | /* epsilon */;
 MainClass ::= CLASS Identifier LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier RPAREN LCURLY Statement RCURLY RCURLY;
 
 ClassDeclaration ::= SimpleClassDeclaration | ExtendsClassDeclaration;
-SimpleClassDeclaration ::= CLASS Identifier LCURLY VarDeclarations MethodDeclarations RCURLY;
-ExtendsClassDeclaration ::= CLASS Identifier EXTENDS Identifier LCURLY VarDeclarations MethodDeclarations RCURLY;
+SimpleClassDeclaration ::= CLASS Identifier LCURLY VarDeclList MethodDeclList RCURLY;
+ExtendsClassDeclaration ::= CLASS Identifier EXTENDS Identifier LCURLY VarDeclList MethodDeclList RCURLY;
 
-VarDeclarations ::= VarDeclarations VarDeclaration | /* epsilon */;
-VarDeclaration ::= Type Identifier SEMICOLON;
 
-MethodDeclarations ::= MethodDeclaration MethodDeclarations | /* epsilon */;
-MethodDeclaration ::= PUBLIC Type Identifier LPAREN FormalList RPAREN LCURLY VarDeclarations StatementList RETURN Expression SEMICOLON RCURLY;
+VarDeclList ::= VarDeclList:vdl VarDecl:vd
+                //{: if (vdl.size() == 0)  
+                //:}
+            | /* epsilon */
+                {: RESULT = new VarDeclList(new Location(-1,-1)); :};
+VarDecl ::= Type:t Identifier:id SEMICOLON
+            {: RESULT = new VarDecl(t, id, txleft); :};
+
+MethodDeclList ::=  NonEmptyMethodDeclList:mdl
+                    {: RESULT = mdl; :}
+                | /* epsilon */
+                    {: RESULT = new MethodDeclList(new Location(-1,-1)); :};
+NonEmptyMethodDeclList ::= MethodDecl:md
+                            {: MethodDeclList mdl = new MethodDeclList(mdxleft);
+                            mdl.add(md);
+                            RESULT = mdl; :}
+                        | NonEmptyMethodDeclList:mdl MethodDecl:md
+                            {: mdl.add(md); RESULT = mdl; :};
+MethodDecl ::= PUBLIC:f Type:t Identifier:id LPAREN FormalList:fl RPAREN LCURLY VarDeclList:vdl StatementList:sl RETURN Expression:e SEMICOLON RCURLY
+                {: RESULT = new MethodDecl(t, id, fl, vdl, sl, e, fxleft); :};
 
 FormalList ::= Formal:f
                 {: FormalList fl = new FormalList(fxleft);
@@ -150,7 +171,7 @@ FormalList ::= Formal:f
             | FormalList:fl COMMA Formal:f
                 {: fl.add(f); RESULT = fl; :}
             | /* epsilon */
-                {: RESULT = new FormalList(new Location(0,0)); :};
+                {: RESULT = new FormalList(new Location(-1,-1)); :};
 
 Formal ::= Type:t Identifier:id
             {: RESULT = new Formal(t, id, txleft); :};
@@ -158,7 +179,7 @@ Formal ::= Type:t Identifier:id
 StatementList ::= NonEmptyStatementList:sl
                     {: RESULT = sl; :}
                 | /* epsilon */
-                    {: RESULT = new StatementList(new Location(0,0)); :};
+                    {: RESULT = new StatementList(new Location(-1,-1)); :};
 
 NonEmptyStatementList ::= Statement:s
                             {: StatementList sl = new StatementList(sxleft);
@@ -196,7 +217,7 @@ ExpressionList ::= Expression:e
                 | ExpressionList:el COMMA Expression:e
                     {: el.add(e); RESULT = el; :}
                 | /* epsilon */
-                    {: RESULT = new ExpList(new Location(0, 0)); :};
+                    {: RESULT = new ExpList(new Location(-1,-1)); :};
 
 Expression ::= Expression:e1 TIMES Expression:e2
                 {: RESULT = new Times(e1, e2, e1xleft); :}
