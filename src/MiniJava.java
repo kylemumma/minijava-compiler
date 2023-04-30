@@ -17,9 +17,9 @@ public class MiniJava {
         } else if (args[0].equals("-S")) {
             scan(args[1]);
         } else if (args[0].equals("-A")) {
-            parse(args[1]);
+            parse(args[1], new ASTPrintVisitor());
         } else if (args[0].equals("-P")) {
-            parse(args[1]);
+            parse(args[1], new PrettyPrintVisitor());
         } else {
             System.err.println("Usage: java MiniJava <option> <filename>");
             System.exit(1);
@@ -58,7 +58,7 @@ public class MiniJava {
             System.exit(1);
         }
     }
-    static void parse(String filename) {
+    static void parse(String filename, Visitor v) {
         try {
             // create a scanner on the input file
             ComplexSymbolFactory sf = new ComplexSymbolFactory();
@@ -75,11 +75,9 @@ public class MiniJava {
             // root node, so we suppress warnings for the next assignment.
             
             @SuppressWarnings("unchecked")
-            List<Statement> program = (List<Statement>)root.value;
-            for (Statement statement: program) {
-                statement.accept(new PrettyPrintVisitor());
-                System.out.print("\n");
-            }
+            Program program = (Program)root.value;
+            program.accept(v);
+            System.out.println();
             
             System.out.println("success!");
         } catch (Exception e) {
