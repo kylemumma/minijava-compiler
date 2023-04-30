@@ -79,7 +79,7 @@ non terminal ParameterList;
 non terminal CommaParameters;
 non terminal Statements;
 non terminal Operator;
-non terminal ExpressionList;
+non terminal ExpList ExpressionList;
 non terminal CommaExpressions;
 non terminal Identifier Identifier;
 
@@ -157,8 +157,16 @@ Type ::= INT LBRACK RBRACK
         | INT 
         | Identifier;
 
-ExpressionList ::= Expression CommaExpressions | /* epsilon */;
-CommaExpressions ::= COMMA Expression CommaExpressions | /* epsilon */;
+ExpressionList ::= Expression 
+                    {: List<Exp> expList :}
+                | ExpressionList COMMA Expression 
+                | /* epsilon */
+                {: RESULT = new ExpList(new Location(0, 0)); :};
+
+//ExpressionList ::= Expression CommaExpressions 
+//                | /* epsilon */;
+//CommaExpressions ::= COMMA Expression CommaExpressions | /* epsilon */;
+
 
 Expression ::= Expression:e1 TIMES Expression:e2
                 {: RESULT = new Times(e1, e2, e1xleft); :}
@@ -177,13 +185,13 @@ Expression ::= Expression:e1 TIMES Expression:e2
             | Expression:e1 DOT Identifier:id LPAREN ExpressionList:e2 RPAREN
                 {: RESULT = new Call(e1, id, e2, e1xleft); :}
             | INTEGER_LITERAL:e
-                {: RESULT = new IntegerLiteral(Integer.parseInt((String)e.value), exleft); :}
+                {: RESULT = new IntegerLiteral(e, exleft); :}
             | TRUE:e
                 {: RESULT = new True(exleft); :}
             | FALSE:e
                 {: RESULT = new False(exleft); :}
             | IDENTIFIER:id
-                {: RESULT = new IdentifierExpression((String)id.value, idxleft); :}
+                {: RESULT = new IdentifierExp(id, idxleft); :}
             | THIS:e
                 {: RESULT = new This(exleft); :}
             | NEW:n INT LBRACK Expression:e RBRACK
@@ -195,5 +203,5 @@ Expression ::= Expression:e1 TIMES Expression:e2
             | LPAREN Expression:e RPAREN
                 {: RESULT = e; :};
 
-Identifier ::= IDENTIFIER:e
-                {: RESULT = new Identifier((String)e.value, exleft) :};     
+Identifier ::= IDENTIFIER:id
+                {: RESULT = new Identifier(id, idxleft); :};     
