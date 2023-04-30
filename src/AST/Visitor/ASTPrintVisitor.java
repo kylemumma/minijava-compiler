@@ -84,7 +84,7 @@ public class ASTPrintVisitor implements Visitor {
   public void visit(ClassDeclExtends n) {
     print("Class ");
     n.i.accept(this);
-    print(" extends ")
+    print(" extends ");
     n.j.accept(this);
     println(" (line " + n.line_number + ")");
     indent++;
@@ -258,7 +258,6 @@ public class ASTPrintVisitor implements Visitor {
     n.e2.accept(this);
     indent--;
   }
-  }
 
   // Exp e1,e2;
   public void visit(Plus n) {
@@ -268,7 +267,6 @@ public class ASTPrintVisitor implements Visitor {
     println("");
     n.e2.accept(this);
     indent--;
-  }
   }
 
   // Exp e1,e2;
@@ -280,7 +278,6 @@ public class ASTPrintVisitor implements Visitor {
     n.e2.accept(this);
     indent--;
   }
-  }
 
   // Exp e1,e2;
   public void visit(Times n) {
@@ -291,7 +288,6 @@ public class ASTPrintVisitor implements Visitor {
     n.e2.accept(this);
     indent--;
   }
-  }
 
   // Exp e1,e2;
   public void visit(ArrayLookup n) {
@@ -301,7 +297,6 @@ public class ASTPrintVisitor implements Visitor {
     println("");
     n.e2.accept(this);
     indent--;
-  }
   }
 
   // Exp e;
@@ -322,7 +317,7 @@ public class ASTPrintVisitor implements Visitor {
     println("");
     n.i.accept(this);
     println("");
-    println("arguments: ")
+    println("arguments: ");
     indent++;
     for ( int i = 0; i < n.el.size(); i++ ) {
         n.el.get(i).accept(this);
@@ -335,7 +330,7 @@ public class ASTPrintVisitor implements Visitor {
   // int i;
   public void visit(IntegerLiteral n) {
     print("IntegerLiteral ");
-    print(n.i);
+    print(Integer.toString(n.i));
   }
 
   public void visit(True n) {
@@ -348,7 +343,6 @@ public class ASTPrintVisitor implements Visitor {
 
   // String s;
   public void visit(IdentifierExp n) {
-    print("IdentifierExp ");
     print(n.s);
   }
 
