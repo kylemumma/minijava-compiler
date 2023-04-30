@@ -136,7 +136,8 @@ Goal ::= MainClass ClassDeclarations;
 
 ClassDeclarations ::= ClassDeclarations ClassDeclaration | /* epsilon */;
 
-MainClass ::= CLASS Identifier LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier RPAREN LCURLY Statement RCURLY RCURLY;
+MainClass ::= CLASS Identifier:i1 LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier:i2 RPAREN LCURLY Statement:s RCURLY RCURLY
+{: RESULT = new MainClass(i1, i2, as, i1xleft); :}
 
 ClassDeclaration ::= SimpleClassDeclaration | ExtendsClassDeclaration;
 SimpleClassDeclaration ::= CLASS Identifier LCURLY VarDeclList MethodDeclList RCURLY;
