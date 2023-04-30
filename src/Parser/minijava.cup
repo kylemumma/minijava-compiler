@@ -62,13 +62,14 @@ non terminal Identifier Identifier;
 */
 // todo: add types to these, corresponding to the AST node type for the given
 // production (i think)
-non terminal Goal;
-non terminal MainClass;
-non terminal ClassDeclarations;
-non terminal ClassDeclaration;
+non terminal Program Goal;
+non terminal MainClass MainClass;
 
-non terminal SimpleClassDeclaration;
-non terminal ExtendsClassDeclaration;
+non terminal ClassDeclList ClassDeclList;
+non terminal ClassDeclList NonEmptyClassDeclList;
+non terminal ClassDecl ClassDecl;
+non terminal ClassDeclSimple ClassDeclSimple;
+non terminal ClassDeclExtends ClassDeclExtends;
 
 non terminal Type Type;
 
@@ -132,16 +133,30 @@ Expression    ::= IDENTIFIER:name
             {: RESULT = expr; :};
 */
 
-Goal ::= MainClass ClassDeclarations;
+Goal ::= MainClass:c ClassDeclList:c1
+{: RESULT = new Program(c, c1, cxleft); :};
 
-ClassDeclarations ::= ClassDeclarations ClassDeclaration | /* epsilon */;
+MainClass ::= CLASS:f Identifier:i1 LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier:i2 RPAREN LCURLY Statement:s RCURLY RCURLY
+{: RESULT = new MainClass(i1, i2, s, fxleft); :};
 
-MainClass ::= CLASS Identifier:i1 LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier:i2 RPAREN LCURLY Statement:s RCURLY RCURLY
-{: RESULT = new MainClass(i1, i2, s, i1xleft); :};
-
-ClassDeclaration ::= SimpleClassDeclaration | ExtendsClassDeclaration;
-SimpleClassDeclaration ::= CLASS Identifier LCURLY VarDeclList MethodDeclList RCURLY;
-ExtendsClassDeclaration ::= CLASS Identifier EXTENDS Identifier LCURLY VarDeclList MethodDeclList RCURLY;
+ClassDeclList ::= NonEmptyClassDeclList:cdl
+                    {: RESULT = cdl; :}
+                | /* epsilon */
+                    {: RESULT = new ClassDeclList(new Location(-1,-1)); :};
+NonEmptyClassDeclList ::= ClassDecl:cd
+                            {: ClassDeclList cdl = new ClassDeclList(cdxleft);
+                            cdl.add(cd);
+                            RESULT = cdl; :}
+                        | NonEmptyClassDeclList:cdl ClassDecl:cd
+                            {: cdl.add(cd); RESULT = cdl; :};
+ClassDecl ::= ClassDeclSimple:cd
+                {: RESULT = cd; :}
+            | ClassDeclExtends:cd
+                {: RESULT = cd; :};
+ClassDeclSimple ::= CLASS:f Identifier:id LCURLY VarDeclList:vdl MethodDeclList:mdl RCURLY
+                    {: RESULT = new ClassDeclSimple(id, vdl, mdl, fxleft); :};
+ClassDeclExtends ::= CLASS:f Identifier:id1 EXTENDS Identifier:id2 LCURLY VarDeclList:vdl MethodDeclList:mdl RCURLY
+                    {: RESULT = new ClassDeclExtends(id1, id2, vdl, mdl, fxleft); :};
 
 VarDeclList ::= VarDeclList:vdl VarDecl:vd
                 {: if (vdl.size() == 0) vdl = new VarDeclList(vdxleft);

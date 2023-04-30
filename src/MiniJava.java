@@ -78,8 +78,6 @@ public class MiniJava {
             Program program = (Program)root.value;
             program.accept(v);
             System.out.println();
-            
-            System.out.println("success!");
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
             // that we're not expecting (a bug!)
