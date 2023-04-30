@@ -95,7 +95,7 @@ import Parser.sym;
      if (cs.sym == sym.IDENTIFIER) {
        return "ID(" + (String)cs.value + ")";
      } else if (cs.sym == sym.INTEGER_LITERAL) {
-       return cs.getName() + "(" + (String)cs.value + ")";
+       return cs.getName() + "(" + Integer.toString((Integer)cs.value) + ")";
      } else if (cs.sym == sym.error) {
        return "<UNEXPECTED(" + (String)cs.value + ")>";
      } else {
