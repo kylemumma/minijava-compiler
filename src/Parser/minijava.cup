@@ -133,14 +133,22 @@ Expression    ::= IDENTIFIER:name
             {: RESULT = expr; :};
 */
 
-Goal ::= MainClass:c ClassDeclList:c1;
-//{: RESULT = new Program(c, c1, cxleft); :};
+Goal ::= MainClass:c ClassDeclList:c1
+{: RESULT = new Program(c, c1, cxleft); :};
 
-MainClass ::= CLASS Identifier:i1 LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier:i2 RPAREN LCURLY Statement:s RCURLY RCURLY
-{: RESULT = new MainClass(i1, i2, s, i1xleft); :};
+MainClass ::= CLASS:f Identifier:i1 LCURLY PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK Identifier:i2 RPAREN LCURLY Statement:s RCURLY RCURLY
+{: RESULT = new MainClass(i1, i2, s, fxleft); :};
 
-ClassDeclList ::= NonEmptyClassDeclList | /* epsilon */;
-NonEmptyClassDeclList ::= ClassDecl | NonEmptyClassDeclList ClassDecl;
+ClassDeclList ::= NonEmptyClassDeclList:cdl
+                    {: RESULT = cdl; :}
+                | /* epsilon */
+                    {: RESULT = new ClassDeclList(new Location(-1,-1)); :};
+NonEmptyClassDeclList ::= ClassDecl:cd
+                            {: ClassDeclList cdl = new ClassDeclList(cdxleft);
+                            cdl.add(cd);
+                            RESULT = cdl; :}
+                        | NonEmptyClassDeclList:cdl ClassDecl:cd
+                            {: cdl.add(cd); RESULT = cdl; :};
 ClassDecl ::= ClassDeclSimple:cd
                 {: RESULT = cd; :}
             | ClassDeclExtends:cd
