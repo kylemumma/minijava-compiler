@@ -140,7 +140,6 @@ public class ASTPrintVisitor implements Visitor {
         println("");
     }
     for ( int i = 0; i < n.sl.size(); i++ ) {
-        indent++;
         n.sl.get(i).accept(this);
         println("");
     }
@@ -180,6 +179,7 @@ public class ASTPrintVisitor implements Visitor {
     indent++;
     for ( int i = 0; i < n.sl.size(); i++ ) {
         n.sl.get(i).accept(this);
+        if (i == n.sl.size() - 1) continue;
         println("");
     }
     indent--;
@@ -196,6 +196,7 @@ public class ASTPrintVisitor implements Visitor {
     indent++;
     n.s1.accept(this);
     indent--;
+    println("");
     println("Else");
     indent++;
     n.s2.accept(this);
@@ -208,6 +209,7 @@ public class ASTPrintVisitor implements Visitor {
     println("While");
     indent++;
     n.e.accept(this);
+    println("");
     println("Then");
     indent++;
     n.s.accept(this);
