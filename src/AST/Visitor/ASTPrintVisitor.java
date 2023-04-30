@@ -211,6 +211,7 @@ public class ASTPrintVisitor implements Visitor {
     println("Print");
     indent++;
     n.e.accept(this);
+    println("");
     indent--;
   }
   
