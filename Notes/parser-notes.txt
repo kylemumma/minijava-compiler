@@ -26,3 +26,5 @@ did it independently with collaboration using git. We started by making a cup
 file that could recognize minijava grammar. We then added code to the cup file to
 build the ast. And finally we added the visitors to visit and print our ast.
 We did an equal amount of work.
+
+NOTE: for the AST printer, a blank line after "arguments" indicates no arguments.
