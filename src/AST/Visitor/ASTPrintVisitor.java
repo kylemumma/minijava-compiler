@@ -201,6 +201,7 @@ public class ASTPrintVisitor implements Visitor {
     indent++;
     n.s2.accept(this);
     indent--;
+    indent--;
   }
 
   // Exp e;
