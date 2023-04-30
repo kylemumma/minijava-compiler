@@ -85,6 +85,7 @@ public class MiniJava {
                                e.toString());
             // print out a stack dump
             e.printStackTrace();
+            System.exit(1);
         }
     }
 }
