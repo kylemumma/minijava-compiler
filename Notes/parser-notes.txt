@@ -1,0 +1,28 @@
+Modifications to MiniJava grammar:
+    - some of the grammar was in terms of regex rather than cfg, we turned
+    all the regex notation into cfg rules.
+    - ran into shift-reduce conflicts with many of the lists, some of these
+    conflicts were issues with epsilon possibilities. A common
+    design patterns we used to resolve issues with the "0 or more" shift-reduce
+    conflicts was:
+        - List/NonEmptyList pattern, we used an "list ::= nonemptylist | epsilon"
+        pattern to remove shift-reduce conflicts. This minimized the ambiguity compared
+        to something like "list ::= listelem | listelem list | epsilon".
+    - Additionally we ran into a tricky shift-reduce conflict with vardecllist.
+    Since vardecllist are followed by methoddecllist we were running into sr conflicts
+    for the transition between them. We ended up having to remove sole vardecl from a
+    vardecl list because a vardecl and method decl both begin with type identifier. You
+    can our cup file for our solution. It caused us to be more creative in our building
+    of the ast because of this which you can see in the cup file.
+
+    these were the main sr conflicts that caused us to modify the grammar a bit.
+    it still describes the same language as minijava cfg should.
+
+We have no remaining sr conflicts
+
+We worked on the majority of the project together using pair programming.
+For the small amount we didnt do together, we split up the work evenly and
+did it independently with collaboration using git. We started by making a cup
+file that could recognize minijava grammar. We then added code to the cup file to
+build the ast. And finally we added the visitors to visit and print our ast.
+We did an equal amount of work.
