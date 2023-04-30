@@ -144,10 +144,12 @@ ExtendsClassDeclaration ::= CLASS Identifier EXTENDS Identifier LCURLY VarDeclLi
 
 
 VarDeclList ::= VarDeclList:vdl VarDecl:vd
-                //{: if (vdl.size() == 0)  
-                //:}
+                {: if (vdl.size() == 0) vdl = new VarDeclList(vdxleft);
+                vdl.add(vd); 
+                RESULT = vdl; :}
             | /* epsilon */
                 {: RESULT = new VarDeclList(new Location(-1,-1)); :};
+
 VarDecl ::= Type:t Identifier:id SEMICOLON
             {: RESULT = new VarDecl(t, id, txleft); :};
 
