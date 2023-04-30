@@ -322,6 +322,7 @@ public class ASTPrintVisitor implements Visitor {
     indent++;
     for ( int i = 0; i < n.el.size(); i++ ) {
         n.el.get(i).accept(this);
+        if ( i == n.el.size()-1) continue;
         println("");
     }
     indent--;
