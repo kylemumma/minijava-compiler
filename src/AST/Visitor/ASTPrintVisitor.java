@@ -129,23 +129,20 @@ public class ASTPrintVisitor implements Visitor {
     n.t.accept(this);
     println("");
     println("parameters: ");
+    indent++;
     for ( int i = 0; i < n.fl.size(); i++ ) {
-        indent++;
         n.fl.get(i).accept(this);
         println("");
-        indent--;
     }
+    indent--;
     for ( int i = 0; i < n.vl.size(); i++ ) {
-        indent++;
         n.vl.get(i).accept(this);
         println("");
-        indent--;
     }
     for ( int i = 0; i < n.sl.size(); i++ ) {
         indent++;
         n.sl.get(i).accept(this);
         println("");
-        indent--;
     }
     print("Return ");
     n.e.accept(this);
