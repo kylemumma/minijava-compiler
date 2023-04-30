@@ -142,7 +142,6 @@ ClassDeclaration ::= SimpleClassDeclaration | ExtendsClassDeclaration;
 SimpleClassDeclaration ::= CLASS Identifier LCURLY VarDeclList MethodDeclList RCURLY;
 ExtendsClassDeclaration ::= CLASS Identifier EXTENDS Identifier LCURLY VarDeclList MethodDeclList RCURLY;
 
-
 VarDeclList ::= VarDeclList:vdl VarDecl:vd
                 {: if (vdl.size() == 0) vdl = new VarDeclList(vdxleft);
                 vdl.add(vd); 
