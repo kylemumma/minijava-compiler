@@ -94,8 +94,8 @@
   <target name="minijava" depends="compile">
     <java classname="MiniJava" classpath="build/classes;lib/java-cup-11b.jar"
           fork="true">
-      <arg value = "-S"/>
-      <arg value = "SamplePrograms/SampleMiniJavaPrograms/QuickSort.java"/>
+      <arg value = "-P"/>
+      <arg value = "SamplePrograms/Example2.java"/>
       <assertions> <enable/> </assertions>
     </java>
   </target>
