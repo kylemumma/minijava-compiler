@@ -1,9 +1,5 @@
 CSE 401 23sp Project II - Parser
 
-Statements in a block were printed in reverse order. (-2)
+Good work, we couldn’t find any bugs!
 
-Method declarations in a class were printed in a seemingly random order. (-2)
-
-Class declarations were printed in reverse order (-2)
-
-Total: 56/62
+Total: 62/62
