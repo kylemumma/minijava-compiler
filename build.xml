@@ -95,7 +95,7 @@
     <java classname="MiniJava" classpath="build/classes;lib/java-cup-11b.jar"
           fork="true">
       <arg value = "-A"/>
-      <arg value = "SamplePrograms/SampleMiniJavaPrograms/LinkedList.java"/>
+      <arg value = "SamplePrograms/ExampleOrder.java"/>
       <assertions> <enable/> </assertions>
     </java>
   </target>
