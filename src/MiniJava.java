@@ -2,6 +2,7 @@ import Scanner.*;
 import Parser.*;
 import AST.*;
 import AST.Visitor.*;
+import Analyzer.analyzer;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
 import java.util.*;
@@ -79,6 +80,32 @@ public class MiniJava {
             program.accept(v);
             System.out.println();
             System.exit(0);
+        } catch (Exception e) {
+            // yuck: some kind of error in the compiler implementation
+            // that we're not expecting (a bug!)
+            System.err.println("Unexpected internal compiler error: " + 
+                               e.toString());
+            // print out a stack dump
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    /*
+     * In american pop culture, the show "penguins of madagascar" has a common
+     * saying "kowalski analysis." It is used as a command to kowalski to begin
+     * analysis. Hence in our program, the kowalski analysis function is used to
+     * perform static semantic analysis of a program in the file specified by filename.
+     */
+    static void kowalskiAnalysis(String filename) {
+        try {
+            // create a scanner on the input file
+            ComplexSymbolFactory sf = new ComplexSymbolFactory();
+            InputStream istream = new FileInputStream(filename);
+            Reader in = new BufferedReader(new InputStreamReader(istream));
+            scanner s = new scanner(in, sf);
+            parser p = new parser(s, sf);
+            analyzer a = new analyzer(p);
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
             // that we're not expecting (a bug!)

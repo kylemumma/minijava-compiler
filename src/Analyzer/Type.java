@@ -1,5 +1,6 @@
 package Analyzer;
 
+import java.util.List;
 import java.util.Set;
 
 enum type {
@@ -39,6 +40,8 @@ class ClassType extends Type {
 
 class MethodType extends Type {
     String name;
+    List<Type> params;
+    Type retType; // ur mom teeheheehe ihoacbaubcil sdv;gfCGAFYCGALWUFWHIUs F[Pafjaowuh"qog:sn]
     SymbolTable st;
     boolean assignmentCompatible(Type t) {
         // methods should never be assigned to anything
