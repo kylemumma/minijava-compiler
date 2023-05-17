@@ -21,6 +21,8 @@ public class MiniJava {
             parse(args[1], new ASTPrintVisitor());
         } else if (args[0].equals("-P")) {
             parse(args[1], new PrettyPrintVisitor());
+        } else if (args[0].equals("-T")) {
+            kowalskiAnalysis(args[1]);
         } else {
             System.err.println("Usage: java MiniJava <option> <filename>");
             System.exit(1);
@@ -106,6 +108,7 @@ public class MiniJava {
             scanner s = new scanner(in, sf);
             parser p = new parser(s, sf);
             analyzer a = new analyzer(p);
+            a.analyze();
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
             // that we're not expecting (a bug!)

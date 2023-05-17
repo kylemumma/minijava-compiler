@@ -4,7 +4,7 @@ class Foo {
 }
 }
 
-class Bar extends Nothing { public int bar(Baz f, Bar b) {
+class Bar extends Foo { public int bar(Baz f, Bar b) {
 System.out.println(new Thing().method());
   return 5;
 }

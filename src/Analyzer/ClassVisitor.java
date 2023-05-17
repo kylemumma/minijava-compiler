@@ -80,7 +80,7 @@ public class ClassVisitor implements Visitor {
   }
 
   private void cannotFindSymbol(int line_number, String name, String sym) {
-    System.err.println(line_number + ": error: " + name + " extending from unknown symbol : " + name);
+    System.err.println(line_number + ": error: " + name + " extending from unknown symbol: " + sym);
   }
 
   // MainClass m;
@@ -145,7 +145,10 @@ public class ClassVisitor implements Visitor {
       // a class with the same name has already been defined
       duplicateError(n.line_number, t.name);
     } else {
-      parentToChildren.getOrDefault(n.j.s, new ArrayList<String>()).add(n.i.s);
+      if (!parentToChildren.containsKey(n.j.s)) {
+        parentToChildren.put(n.j.s, new ArrayList<String>());
+      }
+      parentToChildren.get(n.j.s).add(n.i.s);
       locations.put(t.name, n.line_number);
     }
   }

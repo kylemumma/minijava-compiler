@@ -35,6 +35,7 @@ public class analyzer {
         GlobalSymbolTable g = new GlobalSymbolTable();
         new ClassVisitor().activate(program, g);
         new MethodVisitor().activate(program, g);
+        new FieldVisitor().activate(program, g);
         System.out.println();
         System.exit(0);
     }
