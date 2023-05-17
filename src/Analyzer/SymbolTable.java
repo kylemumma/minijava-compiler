@@ -84,11 +84,11 @@ class ClassSymbolTable extends SymbolTable {
 }
 
 class RegularSymbolTable extends SymbolTable {
-    ClassSymbolTable parent;
+    SymbolTable parent;
     Map<String, Type> symbols;
 
-    // always has a parent, its class field
-    RegularSymbolTable(ClassSymbolTable t) {
+    // always has a parent, either its class or method
+    RegularSymbolTable(SymbolTable t) {
         parent = t;
         symbols = new HashMap<String, Type>();
     }
