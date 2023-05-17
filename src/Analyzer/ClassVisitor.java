@@ -14,52 +14,56 @@ import Analyzer.*;
 
 // fills out a global symbol table from a program ast node
 
-public class AnalyzerVisitor implements Visitor {
+public class ClassVisitor implements Visitor {
 
   
   GlobalSymbolTable gst;
   Set<String> rootClasses; // no parents
   Map<String, List<String>> parentToChildren;
-  List<ClassDeclSimple> simples;
-  List<ClassDeclExtends> extenders;
+  Map<String, Integer> locations; // class locations
+  String mainClass;
 
   // for filling out parents list of a class
   private void dfs(String c) {
     ClassType curType = (ClassType)gst.Lookup(c);
     for (String child : parentToChildren.getOrDefault(c, new ArrayList<String>())) {
+      if (c == mainClass) {
+        extendMainClassError(locations.get(child), child);
+      }
       ClassType t = (ClassType)gst.Lookup(child);
       t.parents.addAll(curType.parents);
       t.parents.add(c);
+      t.st.parent = curType.st;
+      if (t.parents.contains(child)) {
+        cycleError(locations.get(child), child);
+        break;
+      }
       dfs(child);
     }
   }
 
-  public GlobalSymbolTable generateSymbolTable(Program p) {
-    gst = new GlobalSymbolTable();
+
+  public void activate(Program p, GlobalSymbolTable g) {
+    gst = g;
     rootClasses = new HashSet<String>();
     parentToChildren = new HashMap<String, List<String>>();
-    simples = new ArrayList<ClassDeclSimple>();
-    extenders = new ArrayList<ClassDeclExtends>();
+    locations = new HashMap<String, Integer>();
     p.accept(this);
-    // set the parents for all classes
+
+    // extending classes that don't exist will show up in parentToChildren map but not rootClasses map
+    Set<String> inParentToChildren = new HashSet<>(parentToChildren.keySet());
+    inParentToChildren.removeAll(rootClasses);
+    for (String s : inParentToChildren) {
+      String guiltyClass = parentToChildren.get(s).get(0);
+      cannotFindSymbol(locations.get(guiltyClass), guiltyClass, s);
+    }
+
+    // set the parents for all classes and check cyclic dependencies
     for (String root : rootClasses) {
+      ClassType t = (ClassType)gst.Lookup(root);
+      t.st.parent = gst;
       dfs(root);
     }
-
-    // check for cyclic dependencies (only need to check things which have extends)
-    for (ClassDeclExtends extender : extenders) {
-      String name = extender.i.s;
-      if (parentToChildren.get(name).contains(name)) {
-        // extends itself directly or indirectly
-        cycleError(extender.line_number, name);
-      }
-    }
-
-    // build class symbol tables
-    // mainclass 
-
-
-    return gst;
   }
 
 
@@ -69,6 +73,14 @@ public class AnalyzerVisitor implements Visitor {
 
   private void cycleError(int line_number, String name) {
     System.err.println(line_number + ": error: cyclic inheritance involving " + name);
+  }
+
+  private void extendMainClassError(int line_number, String name) {
+    System.err.println(line_number + ": error: extending from main class: " + name);
+  }
+
+  private void cannotFindSymbol(int line_number, String name, String sym) {
+    System.err.println(line_number + ": error: " + name + " extending from unknown symbol : " + name);
   }
 
   // MainClass m;
@@ -94,6 +106,8 @@ public class AnalyzerVisitor implements Visitor {
       duplicateError(n.line_number, t.name);
     } else {
       rootClasses.add(t.name);
+      locations.put(t.name, n.line_number);
+      mainClass = t.name;
     }
   }
 
@@ -112,7 +126,7 @@ public class AnalyzerVisitor implements Visitor {
       duplicateError(n.line_number, t.name);
     } else {
       rootClasses.add(t.name);
-      simples.add(n);
+      locations.put(t.name, n.line_number);
     }
   }
  
@@ -132,7 +146,7 @@ public class AnalyzerVisitor implements Visitor {
       duplicateError(n.line_number, t.name);
     } else {
       parentToChildren.getOrDefault(n.j.s, new ArrayList<String>()).add(n.i.s);
-      extenders.add(n);
+      locations.put(t.name, n.line_number);
     }
   }
 
