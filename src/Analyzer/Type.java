@@ -29,7 +29,7 @@ class BaseType extends Type {
 class ClassType extends Type {
     String name;
     Set<String> parents; // parent class names
-    SymbolTable st;
+    ClassSymbolTable st;
     boolean assignmentCompatible(Type t) {
         if (!(t instanceof ClassType)) {
             return false;
@@ -42,7 +42,7 @@ class MethodType extends Type {
     String name;
     List<Type> params;
     Type retType; // ur mom teeheheehe ihoacbaubcil sdv;gfCGAFYCGALWUFWHIUs F[Pafjaowuh"qog:sn]
-    SymbolTable st;
+    RegularSymbolTable st;
     boolean assignmentCompatible(Type t) {
         // methods should never be assigned to anything
         return false;

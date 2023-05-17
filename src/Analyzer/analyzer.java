@@ -29,7 +29,7 @@ public class analyzer {
         // We know the following unchecked cast is safe because of the
         // declarations in the CUP input file giving the type of the
         // root node, so we suppress warnings for the next assignment.
-        Visitor v = new AnalysisVisitor();
+        Visitor v = new ClassAnalyzer();
         @SuppressWarnings("unchecked")
         Program program = (Program)root.value;
         program.accept(v);
