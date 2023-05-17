@@ -18,11 +18,22 @@ public class MethodVisitor implements Visitor {
 
   
   GlobalSymbolTable gst;
+  ClassType currClass;
+  MethodType currMethod;
+  String currIdentifierName; // if finding out type later
 
 
   public void activate(Program p, GlobalSymbolTable g) {
     gst = g;
     p.accept(this);
+  }
+
+  private void cannotFindSymbol(int line_number, String name) {
+    System.err.println(line_number + ": error: cannot find symbol: " + name);
+  }
+
+  private void duplicateError(int line_number, String name, String methodName) {
+    System.err.println(line_number + ": error: variable " + name + " is already defined in method " + methodName);
   }
 
 
@@ -45,7 +56,10 @@ public class MethodVisitor implements Visitor {
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclSimple n) {
-    ClassSymbolTable c = 
+    currClass = (ClassType) gst.Lookup(n.i.s);
+    for (int i = 0; i < n.ml.size(); i++) {
+        n.ml.get(i).accept(this);
+    }
   }
  
   // Identifier i;
@@ -53,25 +67,17 @@ public class MethodVisitor implements Visitor {
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclExtends n) {
-    ClassType t = new ClassType();
-    t.name = n.i.s;
-    t.parents = new HashSet<>();
-    t.st = new ClassSymbolTable();
-
-    boolean res = gst.Enter(t.name, t);
-    if (!res) {
-      // a class with the same name has already been defined
-      duplicateError(n.line_number, t.name);
-    } else {
-      parentToChildren.getOrDefault(n.j.s, new ArrayList<String>()).add(n.i.s);
-      locations.put(t.name, n.line_number);
+    currClass = (ClassType) gst.Lookup(n.i.s);
+    for (int i = 0; i < n.ml.size(); i++) {
+        n.ml.get(i).accept(this);
     }
   }
 
   // Type t;
   // Identifier i;
   public void visit(VarDecl n) {
-
+    currIdentifierName = n.i.s;
+    n.t.accept(this);
   }
 
   // Type t;
@@ -81,30 +87,93 @@ public class MethodVisitor implements Visitor {
   // StatementList sl;
   // Exp e;
   public void visit(MethodDecl n) {
- 
+    // make method type and regular symbol table
+    currMethod = new MethodType();
+    currMethod.name = n.i.s;
+    currMethod.params = new ArrayList<Type>();
+    for (int i = 0; i < n.fl.size(); i++) {
+        n.fl.get(i).accept(this);
+    }
+    for (int i = 0; i < n.vl.size(); i++) {
+        n.vl.get(i).accept(this);
+    }
+    currIdentifierName = null;
+    n.t.accept(this);
+    // don't bother with statement list or return expression in this visitor
+    currClass.st.methods.put(n.i.s, currMethod);
   }
 
   // Type t;
   // Identifier i;
   public void visit(Formal n) {
-
+    currIdentifierName = n.i.s;
+    n.t.accept(this);
   }
 
   public void visit(IntArrayType n) {
-
+    BaseType bt = new BaseType();
+    bt.tp = type.INT_ARRAY;
+    if (currIdentifierName == null) {
+        // must be return type of method
+        currMethod.retType = bt;
+        return;
+    }
+    currMethod.params.add(bt);
+    boolean res = currMethod.st.Enter(currIdentifierName, bt);
+    if (!res) {
+        duplicateError(n.line_number, currIdentifierName, currMethod.name);
+    }
   }
 
   public void visit(BooleanType n) {
- 
+    BaseType bt = new BaseType();
+    bt.tp = type.BOOLEAN;
+    if (currIdentifierName == null) {
+        // must be return type of method
+        currMethod.retType = bt;
+        return;
+    }
+    currMethod.params.add(bt);
+    boolean res = currMethod.st.Enter(currIdentifierName, bt);
+    if (!res) {
+        duplicateError(n.line_number, currIdentifierName, currMethod.name);
+    }
+
   }
 
   public void visit(IntegerType n) {
-
+    BaseType bt = new BaseType();
+    bt.tp = type.INT;
+    if (currIdentifierName == null) {
+        // must be return type of method
+        currMethod.retType = bt;
+        return;
+    }
+    currMethod.params.add(bt);
+    boolean res = currMethod.st.Enter(currIdentifierName, bt);
+    if (!res) {
+        duplicateError(n.line_number, currIdentifierName, currMethod.name);
+    }
   }
 
   // String s;
   public void visit(IdentifierType n) {
-
+    Type t = gst.Lookup(n.s);
+    if (t instanceof UnknownType) {
+        cannotFindSymbol(n.line_number, n.s);
+    } else {
+        ClassType ct = (ClassType)t;
+        if (currIdentifierName == null) {
+            // must be return type of method
+            currMethod.retType = ct;
+            return;
+        }
+        currMethod.params.add(ct);
+        boolean res = currMethod.st.Enter(currIdentifierName, ct);
+        if (!res) {
+            duplicateError(n.line_number, currIdentifierName, currMethod.name);
+        }
+    }
   }
 
   // StatementList sl;
