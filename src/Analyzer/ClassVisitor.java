@@ -34,6 +34,7 @@ public class ClassVisitor implements Visitor {
       t.parents.addAll(curType.parents);
       t.parents.add(c);
       t.st.parent = curType.st;
+      t.st.fields = new RegularSymbolTable(curType.st.fields);
       if (t.parents.contains(child)) {
         cycleError(locations.get(child), child);
         break;
@@ -61,7 +62,8 @@ public class ClassVisitor implements Visitor {
     // set the parents for all classes and check cyclic dependencies
     for (String root : rootClasses) {
       ClassType t = (ClassType)gst.Lookup(root);
-      t.st.parent = gst;
+      t.st.parent = null;
+      t.st.fields.parent = null;
       dfs(root);
     }
   }

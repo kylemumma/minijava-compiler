@@ -24,6 +24,19 @@ class BaseType extends Type {
         }
         return tp == ((BaseType)t).tp;
     }
+    @Override
+    public String toString() {
+        switch(tp) {
+            case INT:
+              return "INT";
+            case BOOLEAN:
+              return "BOOLEAN";
+            case INT_ARRAY:
+              return "INT_ARRAY";
+            default:
+              return "UNKNOWN";
+        }
+    }
 }
 
 class ClassType extends Type {
@@ -36,6 +49,10 @@ class ClassType extends Type {
         }
         return ((ClassType)t).parents.contains(name);
     }
+    @Override
+    public String toString() {
+        return name;
+    }
 }
 
 class MethodType extends Type {
@@ -47,12 +64,21 @@ class MethodType extends Type {
         // methods should never be assigned to anything
         return false;
     }
+    @Override
+    public String toString() {
+        return "METHOD: " + name;
+    }
 }
 
 class VoidType extends Type {
     boolean assignmentCompatible(Type t) {
         // assigning to a rvalue/non-location
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "VOID";
     }
 }
 

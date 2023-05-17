@@ -22,6 +22,7 @@ class GlobalSymbolTable extends SymbolTable {
         classes = new HashMap<String, ClassType>();
     }
 
+    // lookup for class name
     Type Lookup(String id) {
         ClassType ret = classes.get(id);
         if (ret == null) {
@@ -39,18 +40,18 @@ class GlobalSymbolTable extends SymbolTable {
 }
 
 class ClassSymbolTable extends SymbolTable {
-    SymbolTable parent; // either another class symbol table or global symbol table
+    ClassSymbolTable parent; // another class symbol table or null
     // string to RegularSymbolTable types
     Map<String, MethodType> methods;
-    RegularSymbolTable fields;
+    RegularSymbolTable fields; // should never have a parent, but is parent to method scoped shit
 
     ClassSymbolTable() {
         parent = null;
         methods = new HashMap<String, MethodType>();
-        fields = new RegularSymbolTable(this);
+        fields = new RegularSymbolTable();
     }
 
-    // lookup for method
+    // lookup for methodname
     Type Lookup(String id) {
         MethodType ret = methods.get(id);
         if (ret == null) {
@@ -66,10 +67,6 @@ class ClassSymbolTable extends SymbolTable {
         }
     }
 
-    Type LookupField(String id) {
-        return fields.Lookup(id);
-    }
-
     boolean Enter(String id, Type typ) {
         if (methods.containsKey(id)) {
             return false;
@@ -77,22 +74,23 @@ class ClassSymbolTable extends SymbolTable {
         methods.put(id, (MethodType)typ);
         return true;
     }
-
-    boolean EnterField(String id, Type typ) {
-        return fields.Enter(id, typ);
-    }
 }
 
 class RegularSymbolTable extends SymbolTable {
-    SymbolTable parent;
+    RegularSymbolTable parent;
     Map<String, Type> symbols;
 
-    // always has a parent, either its class or method
-    RegularSymbolTable(SymbolTable t) {
-        parent = t;
+    // has parent if in method scope (not class fields)
+    RegularSymbolTable() {
         symbols = new HashMap<String, Type>();
     }
 
+    RegularSymbolTable(RegularSymbolTable parent) {
+        this();
+        this.parent = parent;
+    }
+
+    // looking for variable name
     Type Lookup(String id) {
         Type ret = symbols.get(id);
         if (ret == null) {

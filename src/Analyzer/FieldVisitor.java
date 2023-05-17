@@ -108,7 +108,7 @@ public class FieldVisitor implements Visitor {
   public void visit(IntArrayType n) {
     BaseType bt = new BaseType();
     bt.tp = type.INT_ARRAY;
-    boolean res = currClass.st.EnterField(currIdentifierName, bt);
+    boolean res = currClass.st.fields.Enter(currIdentifierName, bt);
     if (!res) {
         duplicateError(n.line_number, currIdentifierName, currClass.name);
     }
@@ -117,7 +117,7 @@ public class FieldVisitor implements Visitor {
   public void visit(BooleanType n) {
     BaseType bt = new BaseType();
     bt.tp = type.BOOLEAN;
-    boolean res = currClass.st.EnterField(currIdentifierName, bt);
+    boolean res = currClass.st.fields.Enter(currIdentifierName, bt);
     if (!res) {
         duplicateError(n.line_number, currIdentifierName, currClass.name);
     }
@@ -127,7 +127,7 @@ public class FieldVisitor implements Visitor {
   public void visit(IntegerType n) {
     BaseType bt = new BaseType();
     bt.tp = type.INT;
-    boolean res = currClass.st.EnterField(currIdentifierName, bt);
+    boolean res = currClass.st.fields.Enter(currIdentifierName, bt);
     if (!res) {
         duplicateError(n.line_number, currIdentifierName, currClass.name);
     }
@@ -140,7 +140,7 @@ public class FieldVisitor implements Visitor {
         cannotFindSymbol(n.line_number, n.s);
     } else {
         ClassType ct = (ClassType)t;
-        boolean res = currClass.st.EnterField(currIdentifierName, ct);
+        boolean res = currClass.st.fields.Enter(currIdentifierName, ct);
         if (!res) {
             duplicateError(n.line_number, currIdentifierName, currClass.name);
         }
