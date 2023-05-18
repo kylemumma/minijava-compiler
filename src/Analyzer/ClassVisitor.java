@@ -22,6 +22,7 @@ public class ClassVisitor implements Visitor {
   Map<String, List<String>> parentToChildren;
   Map<String, Integer> locations; // class locations
   String mainClass;
+  boolean good;
 
   // for filling out parents list of a class
   private void dfs(String c) {
@@ -44,11 +45,12 @@ public class ClassVisitor implements Visitor {
   }
 
 
-  public void activate(Program p, GlobalSymbolTable g) {
+  public boolean activate(Program p, GlobalSymbolTable g) {
     gst = g;
     rootClasses = new HashSet<String>();
     parentToChildren = new HashMap<String, List<String>>();
     locations = new HashMap<String, Integer>();
+    good = true;
     p.accept(this);
 
     // extending classes that don't exist will show up in parentToChildren map but not rootClasses map
@@ -66,23 +68,29 @@ public class ClassVisitor implements Visitor {
       t.st.fields.parent = null;
       dfs(root);
     }
+
+    return good;
   }
 
 
   private void duplicateError(int line_number, String name) {
     System.err.println(line_number + ": error: duplicate class: " + name);
+    good = false;
   }
 
   private void cycleError(int line_number, String name) {
     System.err.println(line_number + ": error: cyclic inheritance involving " + name);
+    good = false;
   }
 
   private void extendMainClassError(int line_number, String name) {
     System.err.println(line_number + ": error: extending from main class: " + name);
+    good = false;
   }
 
   private void cannotFindSymbol(int line_number, String name, String sym) {
     System.err.println(line_number + ": error: " + name + " extending from unknown symbol: " + sym);
+    good = false;
   }
 
   // MainClass m;

@@ -23,31 +23,39 @@ public class MethodVisitor implements Visitor {
   String currIdentifierName; // if finding out type later
   String mainClass;
   boolean isParam;
+  boolean good;
 
 
-  public void activate(Program p, GlobalSymbolTable g) {
+  public boolean activate(Program p, GlobalSymbolTable g) {
     gst = g;
+    good = true;
     p.accept(this);
+    return good;
   }
 
   private void cannotFindSymbol(int line_number, String name) {
     System.err.println(line_number + ": error: cannot find symbol: " + name);
+    good = false;
   }
 
   private void duplicateError(int line_number, String name, String methodName) {
     System.err.println(line_number + ": error: variable " + name + " is already defined in method " + methodName);
+    good = false;
   }
 
   private void duplicateMethodError(int line_number, String name, String className) {
     System.err.println(line_number + ": error: method " + name + " is already defined in class " + className);
+    good = false;
   }
 
   private void doesNotSupportMainClassInstances(int line_number) {
     System.err.println(line_number + ": error: MiniJava does not support instances of the main class");
+    good = false;
   }
 
   private void notOverrideCorrectly(int line_number, String method) {
     System.err.println(line_number + ": error: The " + method + " method is not overridden correctly");
+    good = false;
   }
 
   // for checking param list and ret type of methods

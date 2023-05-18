@@ -15,6 +15,11 @@ class Aight {
 class Potato extends Aight {
 
     public int compute(Aight aaa) {
+        Aight k;
+        int a;
+        k = new Potato();
+        a = k.compute(k);
         return 5;
+        
     }
 }

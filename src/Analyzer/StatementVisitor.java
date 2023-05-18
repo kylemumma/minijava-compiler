@@ -22,33 +22,41 @@ public class StatementVisitor implements Visitor {
   RegularSymbolTable scope;
   Type currType;
   String currClassName; // for handling This
+  boolean good;
 
 
-  public void activate(Program p, GlobalSymbolTable g) {
+  public boolean activate(Program p, GlobalSymbolTable g) {
     gst = g;
     cst = new ClassSymbolTable();
     scope = new RegularSymbolTable();
+    good = true;
     p.accept(this);
+    return good;
   }
 
   private void cannotFindSymbol(int line_number, String name) {
     System.err.println(line_number + ": error: cannot find symbol: " + name);
+    good = false;
   }
 
   private void incompatibleTypes(int line_number, Type t1, Type t2, String context) {
     System.err.println(line_number + ": error: type " + t1 + " cannot be assigned to type " + t2 + " in " + context);
+    good = false;
   }
 
   private void expectedClass(int line_number) {
     System.err.println(line_number + ": error: expected class");
+    good = false;
   }
 
   private void unknownMethod(int line_number, ClassType c, String symbol) {
     System.err.println(line_number + ": error: unknown method " + symbol + " in type " + c);
+    good = false;
   }
 
   private void signatureNotMatch(int line_number, ClassType c, MethodType m) {
     System.err.println(line_number + ": error: method " + m + " signature does not match given arguments for class " + c);
+    good = false;
   }
 
 

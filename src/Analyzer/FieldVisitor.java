@@ -21,23 +21,29 @@ public class FieldVisitor implements Visitor {
   ClassType currClass;
   String currIdentifierName; // if finding out type later
   String mainClass;
+  boolean good;
 
 
-  public void activate(Program p, GlobalSymbolTable g) {
+  public boolean activate(Program p, GlobalSymbolTable g) {
     gst = g;
+    good = true;
     p.accept(this);
+    return good;
   }
 
   private void cannotFindSymbol(int line_number, String name) {
     System.err.println(line_number + ": error: cannot find symbol: " + name);
+    good = false;
   }
 
   private void duplicateError(int line_number, String name, String className) {
     System.err.println(line_number + ": error: variable " + name + " is already defined in class " + className);
+    good = false;
   }
 
   private void doesNotSupportMainClassInstances(int line_number) {
     System.err.println(line_number + ": error: MiniJava does not support instances of the main class");
+    good = false;
   }
 
 

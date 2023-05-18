@@ -111,7 +111,13 @@ public class MiniJava {
             parser p = new parser(s, sf);
             analyzer a = new analyzer(p);
             SymbolTable g = a.analyze();
-            // SymbolTablePrinter.PrintGlobalSymbolTable(g);
+            boolean worked = a.valid();
+            SymbolTablePrinter.PrintGlobalSymbolTable(g);
+            if (worked) {
+                System.exit(0);
+            } else {
+                System.exit(1);
+            }
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
             // that we're not expecting (a bug!)

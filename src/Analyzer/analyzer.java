@@ -9,6 +9,7 @@ import java_cup.runtime.Symbol;
 public class analyzer {
     // root of AST
     Symbol root;
+    boolean good = true;
 
     public analyzer(parser p) throws Exception {
         // replace p.parse() with p.debug_parse() in the next line to see
@@ -24,10 +25,12 @@ public class analyzer {
         @SuppressWarnings("unchecked")
         Program program = (Program)root.value;
         GlobalSymbolTable g = new GlobalSymbolTable();
-        new ClassVisitor().activate(program, g);
-        new FieldVisitor().activate(program, g);
-        new MethodVisitor().activate(program, g);
-        new StatementVisitor().activate(program, g);
+        good = good && new ClassVisitor().activate(program, g);
+        good = good && new FieldVisitor().activate(program, g);
+        good = good && new MethodVisitor().activate(program, g);
+        good = good && new StatementVisitor().activate(program, g);
         return g;
     }
+
+    public boolean valid() { return good; }
 }
