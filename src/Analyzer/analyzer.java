@@ -25,10 +25,10 @@ public class analyzer {
         @SuppressWarnings("unchecked")
         Program program = (Program)root.value;
         GlobalSymbolTable g = new GlobalSymbolTable();
-        good = good && new ClassVisitor().activate(program, g);
-        good = good && new FieldVisitor().activate(program, g);
-        good = good && new MethodVisitor().activate(program, g);
-        good = good && new StatementVisitor().activate(program, g);
+        good = new ClassVisitor().activate(program, g) && good;
+        good = new FieldVisitor().activate(program, g) && good;
+        good = new MethodVisitor().activate(program, g) && good;
+        good = new StatementVisitor().activate(program, g) && good;
         return g;
     }
 
