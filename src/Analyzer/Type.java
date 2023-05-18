@@ -94,4 +94,9 @@ class UnknownType extends Type {
         // assigning to undeclared identifier
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "UNKNOWN";
+    }
 }
