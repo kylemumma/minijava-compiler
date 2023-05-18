@@ -53,7 +53,8 @@ class ClassType extends Type {
         if (!(t instanceof ClassType)) {
             return false;
         }
-        return ((ClassType)t).parents.contains(name);
+        ClassType ct = (ClassType)t;
+        return (ct.name == name || ct.parents.contains(name));
     }
     @Override
     public String toString() {
@@ -64,7 +65,7 @@ class ClassType extends Type {
 class MethodType extends Type {
     String name;
     List<Type> params;
-    Type retType; // ur mom teeheheehe ihoacbaubcil sdv;gfCGAFYCGALWUFWHIUs F[Pafjaowuh"qog:sn]
+    Type retType;
     RegularSymbolTable st;
     boolean assignmentCompatible(Type t) {
         // methods should never be assigned to anything

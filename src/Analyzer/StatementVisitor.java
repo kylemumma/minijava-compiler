@@ -167,21 +167,18 @@ public class StatementVisitor implements Visitor {
     BaseType bt = new BaseType();
     bt.tp = type.INT_ARRAY;
     currType = bt;
-    System.out.println("SCRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRAAAAA");
   }
 
   public void visit(BooleanType n) {
     BaseType bt = new BaseType();
     bt.tp = type.BOOLEAN;
     currType = bt;
-    System.out.println("SCRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRAAAAA");
   }
 
   public void visit(IntegerType n) {
     BaseType bt = new BaseType();
     bt.tp = type.INT;
     currType = bt;
-    System.out.println("SCRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRAAAAA");
   }
 
   // String s;
@@ -343,7 +340,6 @@ public class StatementVisitor implements Visitor {
     }
     MethodType m = (MethodType) t;
     for (int i = 0; i < m.params.size(); i++) {
-      System.out.println(m.params.get(i));
       if (i >= n.el.size()) {
         signatureNotMatch(n.line_number, cl, m);
         break;

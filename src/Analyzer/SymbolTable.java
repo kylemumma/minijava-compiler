@@ -67,6 +67,16 @@ class ClassSymbolTable extends SymbolTable {
         }
     }
 
+    // lookup for methodname only from this class
+    Type LookupHere(String id) {
+        MethodType ret = methods.get(id);
+        if (ret == null) {
+            return new UnknownType();
+        } else {
+            return ret;
+        }
+    }
+
     boolean Enter(String id, Type typ) {
         if (methods.containsKey(id)) {
             return false;

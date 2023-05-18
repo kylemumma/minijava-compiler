@@ -38,8 +38,29 @@ public class MethodVisitor implements Visitor {
     System.err.println(line_number + ": error: variable " + name + " is already defined in method " + methodName);
   }
 
+  private void duplicateMethodError(int line_number, String name, String className) {
+    System.err.println(line_number + ": error: method " + name + " is already defined in class " + className);
+  }
+
   private void doesNotSupportMainClassInstances(int line_number) {
     System.err.println(line_number + ": error: MiniJava does not support instances of the Main Class");
+  }
+
+  private void notOverrideCorrectly(int line_number, String method) {
+    System.err.println(line_number + ": error: The " + method + " method is not overridden correctly");
+  }
+
+  // for checking param list and ret type of methods
+  private boolean exactlyMatches(Type t1, Type t2) {
+    if (t1 instanceof ClassType && t2 instanceof ClassType) {
+      return ((ClassType)t1).name == ((ClassType)t2).name;
+    } else if (t1 instanceof BaseType && t2 instanceof BaseType) {
+      return ((BaseType)t1).tp == ((BaseType)t2).tp;
+    } else if (t1 instanceof VoidType && t2 instanceof VoidType) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
 
@@ -114,7 +135,33 @@ public class MethodVisitor implements Visitor {
     currIdentifierName = null;
     n.t.accept(this);
     // don't bother with statement list or return expression in this visitor
-    currClass.st.methods.put(n.i.s, currMethod);
+    Type t = currClass.st.LookupHere(n.i.s);
+    if (!(t instanceof UnknownType)) {
+      // method declared in this class already!
+      duplicateMethodError(n.line_number, n.i.s,  currClass.name);
+      return;
+    }
+    t = currClass.st.Lookup(n.i.s);
+    if (!(t instanceof UnknownType)) {
+      // need to check this correctly overrides parent type
+      MethodType og = (MethodType) t;
+      if (og.params.size() != currMethod.params.size()) {
+        notOverrideCorrectly(n.line_number, currMethod.name);
+        return;
+      } else if (!exactlyMatches(og.retType, currMethod.retType)) {
+        notOverrideCorrectly(n.line_number, currMethod.name);
+        return;
+      } else {
+        for (int i = 0; i < og.params.size(); i++) {
+          if (!exactlyMatches(currMethod.params.get(i), og.params.get(i))) {
+            notOverrideCorrectly(n.line_number, currMethod.name);
+            return;
+          }
+        }
+      }
+    }
+    currClass.st.Enter(n.i.s, currMethod);
+    
   }
 
   // Type t;
