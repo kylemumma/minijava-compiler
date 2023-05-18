@@ -2,6 +2,7 @@ package Analyzer;
 
 import AST.Program;
 import AST.Visitor.Visitor;
+import Analyzer.SymbolTable;
 import Parser.parser;
 import java_cup.runtime.Symbol;
 
@@ -15,7 +16,7 @@ public class analyzer {
         root = p.parse();
     }
 
-    public GlobalSymbolTable analyze() {
+    public SymbolTable analyze() {
         // We know the following unchecked cast is safe because of the
         // declarations in the CUP input file giving the type of the
         // root node, so we suppress warnings for the next assignment.

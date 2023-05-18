@@ -3,6 +3,8 @@ import Parser.*;
 import AST.*;
 import AST.Visitor.*;
 import Analyzer.analyzer;
+import Analyzer.SymbolTable;
+import Analyzer.SymbolTablePrinter;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
 import java.util.*;
@@ -108,7 +110,7 @@ public class MiniJava {
             scanner s = new scanner(in, sf);
             parser p = new parser(s, sf);
             analyzer a = new analyzer(p);
-            GlobalSymbolTable g = a.analyze();
+            SymbolTable g = a.analyze();
             SymbolTablePrinter.PrintGlobalSymbolTable(g);
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
