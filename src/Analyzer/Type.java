@@ -18,6 +18,12 @@ public abstract class Type {
 
 class BaseType extends Type {
     type tp;
+
+    BaseType () {}
+    BaseType (type tp) {
+        this.tp = tp;
+    }
+
     boolean assignmentCompatible(Type t) {
         if (!(t instanceof BaseType)) {
             return false;
@@ -66,7 +72,7 @@ class MethodType extends Type {
     }
     @Override
     public String toString() {
-        return "METHOD: " + name;
+        return name;
     }
 }
 

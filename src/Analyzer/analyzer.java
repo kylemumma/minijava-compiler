@@ -36,6 +36,7 @@ public class analyzer {
         new ClassVisitor().activate(program, g);
         new FieldVisitor().activate(program, g);
         new MethodVisitor().activate(program, g);
+        new StatementVisitor().activate(program, g);
         System.out.println();
         System.exit(0);
     }

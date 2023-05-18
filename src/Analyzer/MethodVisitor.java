@@ -22,6 +22,7 @@ public class MethodVisitor implements Visitor {
   MethodType currMethod;
   String currIdentifierName; // if finding out type later
   String mainClass;
+  boolean isParam;
 
 
   public void activate(Program p, GlobalSymbolTable g) {
@@ -102,9 +103,11 @@ public class MethodVisitor implements Visitor {
     currMethod.name = n.i.s;
     currMethod.params = new ArrayList<Type>();
     currMethod.st = new RegularSymbolTable(currClass.st.fields);
+    isParam = true;
     for (int i = 0; i < n.fl.size(); i++) {
         n.fl.get(i).accept(this);
     }
+    isParam = false;
     for (int i = 0; i < n.vl.size(); i++) {
         n.vl.get(i).accept(this);
     }
@@ -133,7 +136,7 @@ public class MethodVisitor implements Visitor {
         currMethod.retType = bt;
         return;
     }
-    currMethod.params.add(bt);
+    if (isParam) currMethod.params.add(bt);
     boolean res = currMethod.st.Enter(currIdentifierName, bt);
     if (!res) {
         duplicateError(n.line_number, currIdentifierName, currMethod.name);
@@ -148,7 +151,7 @@ public class MethodVisitor implements Visitor {
         currMethod.retType = bt;
         return;
     }
-    currMethod.params.add(bt);
+    if (isParam) currMethod.params.add(bt);
     boolean res = currMethod.st.Enter(currIdentifierName, bt);
     if (!res) {
         duplicateError(n.line_number, currIdentifierName, currMethod.name);
@@ -164,7 +167,7 @@ public class MethodVisitor implements Visitor {
         currMethod.retType = bt;
         return;
     }
-    currMethod.params.add(bt);
+    if (isParam) currMethod.params.add(bt);
     boolean res = currMethod.st.Enter(currIdentifierName, bt);
     if (!res) {
         duplicateError(n.line_number, currIdentifierName, currMethod.name);
@@ -183,7 +186,7 @@ public class MethodVisitor implements Visitor {
             currMethod.retType = ct;
             return;
         }
-        currMethod.params.add(ct);
+        if (isParam) currMethod.params.add(ct);
         boolean res = currMethod.st.Enter(currIdentifierName, ct);
         if (!res) {
             duplicateError(n.line_number, currIdentifierName, currMethod.name);

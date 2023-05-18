@@ -95,7 +95,7 @@
     <java classname="MiniJava" classpath="build/classes;lib/java-cup-11b.jar"
           fork="true">
       <arg value = "-T"/>
-      <arg value = "SamplePrograms/Example2.java"/>
+      <arg value = "SamplePrograms/SampleMiniJavaPrograms/AssociativityTesting.java"/>
       <assertions> <enable/> </assertions>
     </java>
   </target>

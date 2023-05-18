@@ -21,6 +21,7 @@ public class StatementVisitor implements Visitor {
   ClassSymbolTable cst;
   RegularSymbolTable scope;
   Type currType;
+  String currClassName; // for handling This
 
 
   public void activate(Program p, GlobalSymbolTable g) {
@@ -38,28 +39,37 @@ public class StatementVisitor implements Visitor {
     System.err.println(line_number + ": error: type " + t1 + " cannot be assigned to type " + t2);
   }
 
+  private void expectedClass(int line_number) {
+    System.err.println(line_number + ": error: expected class");
+  }
+
+  private void unknownMethod(int line_number, ClassType c, String symbol) {
+    System.err.println(line_number + ": error: unknown method " + symbol + " in type " + c);
+  }
+
+  private void signatureNotMatch(int line_number, ClassType c, MethodType m) {
+    System.err.println(line_number + ": error: method " + m + " signature does not match given arguments for class " + c);
+  }
+
 
 
 
   private void matchesBool(int line_number) {
-    BaseType expectedType = new BaseType();
-    expectedType.tp = type.BOOLEAN;
+    BaseType expectedType = new BaseType(type.BOOLEAN);
     if (!currType.assignmentCompatible(expectedType)) {
         incompatibleTypes(line_number, currType, expectedType);
     }
   }
 
   private void matchesInt(int line_number) {
-    BaseType expectedType = new BaseType();
-    expectedType.tp = type.INT;
+    BaseType expectedType = new BaseType(type.INT);
     if (!currType.assignmentCompatible(expectedType)) {
         incompatibleTypes(line_number, currType, expectedType);
     }
   }
 
   private void matchesIntArray(int line_number) {
-    BaseType expectedType = new BaseType();
-    expectedType.tp = type.INT_ARRAY;
+    BaseType expectedType = new BaseType(type.INT_ARRAY);
     if (!currType.assignmentCompatible(expectedType)) {
         incompatibleTypes(line_number, currType, expectedType);
     }
@@ -80,24 +90,32 @@ public class StatementVisitor implements Visitor {
     for ( int i = 0; i < n.cl.size(); i++ ) {
         n.cl.get(i).accept(this);
     }
+
+    currType = null;
   }
   
   // Identifier i1,i2;
   // Statement s;
   public void visit(MainClass n) {
     // no need for symbol table for MainClass
+    currClassName = n.i1.s;
     cst = ((ClassType)gst.Lookup(n.i1.s)).st;
     n.s.accept(this);
+
+    currType = null;
   }
 
   // Identifier i;
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclSimple n) {
+    currClassName = n.i.s;
     cst = ((ClassType)gst.Lookup(n.i.s)).st;
     for (int i = 0; i < n.ml.size(); i++) {
         n.ml.get(i).accept(this);
     }
+
+    currType = null;
   }
  
   // Identifier i;
@@ -105,10 +123,13 @@ public class StatementVisitor implements Visitor {
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclExtends n) {
+    currClassName = n.i.s;
     cst = ((ClassType)gst.Lookup(n.i.s)).st;
     for (int i = 0; i < n.ml.size(); i++) {
         n.ml.get(i).accept(this);
     }
+
+    currType = null;
   }
 
   // Type t;
@@ -132,6 +153,8 @@ public class StatementVisitor implements Visitor {
     }
     n.e.accept(this); // currType gets set
     matches(m.retType, n.line_number);
+
+    currType = null;
   }
 
   // Type t;
@@ -144,18 +167,21 @@ public class StatementVisitor implements Visitor {
     BaseType bt = new BaseType();
     bt.tp = type.INT_ARRAY;
     currType = bt;
+    System.out.println("SCRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRAAAAA");
   }
 
   public void visit(BooleanType n) {
     BaseType bt = new BaseType();
     bt.tp = type.BOOLEAN;
     currType = bt;
+    System.out.println("SCRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRAAAAA");
   }
 
   public void visit(IntegerType n) {
     BaseType bt = new BaseType();
     bt.tp = type.INT;
     currType = bt;
+    System.out.println("SCRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRAAAAA");
   }
 
   // String s;
@@ -207,6 +233,8 @@ public class StatementVisitor implements Visitor {
     Type expectedType = currType;
     n.e.accept(this);
     matches(expectedType, n.line_number);
+
+    currType = null;
   }
 
   // Identifier i;
@@ -220,6 +248,8 @@ public class StatementVisitor implements Visitor {
 
     n.e2.accept(this);
     matchesInt(n.line_number);
+
+    currType = null;
   }
 
   // Exp e1,e2;
@@ -229,6 +259,8 @@ public class StatementVisitor implements Visitor {
 
     n.e2.accept(this);
     matchesBool(n.line_number);
+
+    currType = new BaseType(type.BOOLEAN);
   }
 
   // Exp e1,e2;
@@ -238,6 +270,8 @@ public class StatementVisitor implements Visitor {
 
     n.e2.accept(this);
     matchesInt(n.line_number);
+
+    currType = new BaseType(type.BOOLEAN);
   }
 
   // Exp e1,e2;
@@ -247,6 +281,8 @@ public class StatementVisitor implements Visitor {
 
     n.e2.accept(this);
     matchesInt(n.line_number);
+
+    currType = new BaseType(type.INT);
   }
 
   // Exp e1,e2;
@@ -256,6 +292,8 @@ public class StatementVisitor implements Visitor {
 
     n.e2.accept(this);
     matchesInt(n.line_number);
+    
+    currType = new BaseType(type.INT);
   }
 
   // Exp e1,e2;
@@ -265,6 +303,8 @@ public class StatementVisitor implements Visitor {
 
     n.e2.accept(this);
     matchesInt(n.line_number);
+    
+    currType = new BaseType(type.INT);
   }
 
   // Exp e1,e2;
@@ -274,12 +314,16 @@ public class StatementVisitor implements Visitor {
 
     n.e2.accept(this);
     matchesInt(n.line_number);
+
+    currType = new BaseType(type.INT);
   }
 
   // Exp e;
   public void visit(ArrayLength n) {
     n.e.accept(this);
     matchesIntArray(n.line_number);
+
+    currType = new BaseType(type.INT);
   }
 
   // Exp e;
@@ -287,44 +331,80 @@ public class StatementVisitor implements Visitor {
   // ExpList el;
   public void visit(Call n) {
     n.e.accept(this);
-    // have to do somethhing funny here teeheeeee AUfdawiufgafgawbufns
+    if (!(currType instanceof ClassType)) {
+      expectedClass(n.line_number);
+      return;
+    }
+    ClassType cl = (ClassType) currType;
+    Type t = cl.st.Lookup(n.i.s);
+    if (!(t instanceof MethodType)) {
+      unknownMethod(n.line_number, cl, n.i.s);
+      return;
+    }
+    MethodType m = (MethodType) t;
+    for (int i = 0; i < m.params.size(); i++) {
+      System.out.println(m.params.get(i));
+      if (i >= n.el.size()) {
+        signatureNotMatch(n.line_number, cl, m);
+        break;
+      }
+      Type expectedType = m.params.get(i);
+      n.el.get(i).accept(this);
+      matches(expectedType, n.line_number);
+    }
+    currType = null;
   }
 
   // int i;
   public void visit(IntegerLiteral n) {
-
+    currType = new BaseType(type.INT);
   }
 
   public void visit(True n) {
-
+    currType = new BaseType(type.BOOLEAN);
   }
 
   public void visit(False n) {
-
+    currType = new BaseType(type.BOOLEAN);
   }
 
   // String s;
   public void visit(IdentifierExp n) {
-
+    // can only be a variable i.e a = b (the b)
+    Type t = scope.Lookup(n.s);
+    if (t instanceof UnknownType) {
+      cannotFindSymbol(n.line_number, n.s);
+    }
+    currType = t;
   }
 
   public void visit(This n) {
-
+    currType = gst.Lookup(currClassName);
+    if (!(currType instanceof ClassType)) {
+      cannotFindSymbol(n.line_number, currClassName);
+    }
   }
 
   // Exp e;
   public void visit(NewArray n) {
-
+    n.e.accept(this);
+    matchesInt(n.line_number);
+    currType = new BaseType(type.INT_ARRAY);
   }
 
   // Identifier i;
   public void visit(NewObject n) {
-
+    currType = gst.Lookup(n.i.s);
+    if (!(currType instanceof ClassType)) {
+      cannotFindSymbol(n.line_number, n.i.s);
+    }
   }
 
   // Exp e;
   public void visit(Not n) {
-
+    n.e.accept(this);
+    matchesBool(n.line_number);
+    currType = new BaseType(type.BOOLEAN);
   }
 
   // String s;
