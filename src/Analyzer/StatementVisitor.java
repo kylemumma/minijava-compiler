@@ -75,9 +75,10 @@ public class StatementVisitor implements Visitor {
     }
   }
 
-  private void matches(Type t, int line_number) {
-    if (!currType.assignmentCompatible(t)) {
-        incompatibleTypes(line_number, currType, t);
+  private void matches(Type a, Type b, int line_number) {
+    // is a = b valid?
+    if (!a.assignmentCompatible(b)) {
+        incompatibleTypes(line_number, a, b);
     }
   }
 
@@ -152,7 +153,7 @@ public class StatementVisitor implements Visitor {
         n.sl.get(i).accept(this);
     }
     n.e.accept(this); // currType gets set
-    matches(m.retType, n.line_number);
+    matches(m.retType, currType, n.line_number);
 
     currType = null;
   }
@@ -227,9 +228,9 @@ public class StatementVisitor implements Visitor {
   // Exp e;
   public void visit(Assign n) {
     n.i.accept(this);
-    Type expectedType = currType;
+    Type first = currType;
     n.e.accept(this);
-    matches(expectedType, n.line_number);
+    matches(first, currType, n.line_number);
 
     currType = null;
   }
@@ -346,9 +347,9 @@ public class StatementVisitor implements Visitor {
       }
       Type expectedType = m.params.get(i);
       n.el.get(i).accept(this);
-      matches(expectedType, n.line_number);
+      matches(expectedType, currType, n.line_number);
     }
-    currType = null;
+    currType = m.retType;
   }
 
   // int i;
