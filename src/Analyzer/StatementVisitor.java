@@ -35,8 +35,8 @@ public class StatementVisitor implements Visitor {
     System.err.println(line_number + ": error: cannot find symbol: " + name);
   }
 
-  private void incompatibleTypes(int line_number, Type t1, Type t2) {
-    System.err.println(line_number + ": error: type " + t1 + " cannot be assigned to type " + t2);
+  private void incompatibleTypes(int line_number, Type t1, Type t2, String context) {
+    System.err.println(line_number + ": error: type " + t1 + " cannot be assigned to type " + t2 + " in " + context);
   }
 
   private void expectedClass(int line_number) {
@@ -54,31 +54,31 @@ public class StatementVisitor implements Visitor {
 
 
 
-  private void matchesBool(int line_number) {
+  private void matchesBool(int line_number, String context) {
     BaseType expectedType = new BaseType(type.BOOLEAN);
     if (!currType.assignmentCompatible(expectedType)) {
-        incompatibleTypes(line_number, currType, expectedType);
+        incompatibleTypes(line_number, currType, expectedType, context);
     }
   }
 
-  private void matchesInt(int line_number) {
+  private void matchesInt(int line_number, String context) {
     BaseType expectedType = new BaseType(type.INT);
     if (!currType.assignmentCompatible(expectedType)) {
-        incompatibleTypes(line_number, currType, expectedType);
+        incompatibleTypes(line_number, currType, expectedType, context);
     }
   }
 
-  private void matchesIntArray(int line_number) {
+  private void matchesIntArray(int line_number, String context) {
     BaseType expectedType = new BaseType(type.INT_ARRAY);
     if (!currType.assignmentCompatible(expectedType)) {
-        incompatibleTypes(line_number, currType, expectedType);
+        incompatibleTypes(line_number, currType, expectedType, context);
     }
   }
 
-  private void matches(Type a, Type b, int line_number) {
+  private void matches(Type a, Type b, int line_number, String context) {
     // is a = b valid?
     if (!a.assignmentCompatible(b)) {
-        incompatibleTypes(line_number, a, b);
+        incompatibleTypes(line_number, a, b, context);
     }
   }
 
@@ -153,7 +153,7 @@ public class StatementVisitor implements Visitor {
         n.sl.get(i).accept(this);
     }
     n.e.accept(this); // currType gets set
-    matches(m.retType, currType, n.line_number);
+    matches(m.retType, currType, n.line_number, "return");
 
     currType = null;
   }
@@ -203,7 +203,7 @@ public class StatementVisitor implements Visitor {
   // Statement s1,s2;
   public void visit(If n) {
     n.e.accept(this);
-    matchesBool(n.line_number);
+    matchesBool(n.line_number, "if");
     n.s1.accept(this);
     n.s2.accept(this);
     currType = null;
@@ -213,7 +213,7 @@ public class StatementVisitor implements Visitor {
   // Statement s;
   public void visit(While n) {
     n.e.accept(this);
-    matchesBool(n.line_number);
+    matchesBool(n.line_number, "while");
     n.s.accept(this);
     currType = null;
   }
@@ -230,7 +230,7 @@ public class StatementVisitor implements Visitor {
     n.i.accept(this);
     Type first = currType;
     n.e.accept(this);
-    matches(first, currType, n.line_number);
+    matches(first, currType, n.line_number, "assignment");
 
     currType = null;
   }
@@ -239,13 +239,13 @@ public class StatementVisitor implements Visitor {
   // Exp e1,e2;
   public void visit(ArrayAssign n) {
     n.e1.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "array index");
 
     n.i.accept(this);
-    matchesIntArray(n.line_number);
+    matchesIntArray(n.line_number, "int array assignment");
 
     n.e2.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "int array assignment");
 
     currType = null;
   }
@@ -253,10 +253,10 @@ public class StatementVisitor implements Visitor {
   // Exp e1,e2;
   public void visit(And n) {
     n.e1.accept(this);
-    matchesBool(n.line_number);
+    matchesBool(n.line_number, "AND");
 
     n.e2.accept(this);
-    matchesBool(n.line_number);
+    matchesBool(n.line_number, "AND");
 
     currType = new BaseType(type.BOOLEAN);
   }
@@ -264,10 +264,10 @@ public class StatementVisitor implements Visitor {
   // Exp e1,e2;
   public void visit(LessThan n) {
     n.e1.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "LESSTHAN");
 
     n.e2.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "LESSTHAN");
 
     currType = new BaseType(type.BOOLEAN);
   }
@@ -275,10 +275,10 @@ public class StatementVisitor implements Visitor {
   // Exp e1,e2;
   public void visit(Plus n) {
     n.e1.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "PLUS");
 
     n.e2.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "PLUS");
 
     currType = new BaseType(type.INT);
   }
@@ -286,10 +286,10 @@ public class StatementVisitor implements Visitor {
   // Exp e1,e2;
   public void visit(Minus n) {
     n.e1.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "MINUS");
 
     n.e2.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "MINUS");
     
     currType = new BaseType(type.INT);
   }
@@ -297,10 +297,10 @@ public class StatementVisitor implements Visitor {
   // Exp e1,e2;
   public void visit(Times n) {
     n.e1.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "TIMES");
 
     n.e2.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "TIMES");
     
     currType = new BaseType(type.INT);
   }
@@ -308,10 +308,10 @@ public class StatementVisitor implements Visitor {
   // Exp e1,e2;
   public void visit(ArrayLookup n) {
     n.e1.accept(this);
-    matchesIntArray(n.line_number);
+    matchesIntArray(n.line_number, "array lookup");
 
     n.e2.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "array index");
 
     currType = new BaseType(type.INT);
   }
@@ -319,7 +319,7 @@ public class StatementVisitor implements Visitor {
   // Exp e;
   public void visit(ArrayLength n) {
     n.e.accept(this);
-    matchesIntArray(n.line_number);
+    matchesIntArray(n.line_number, "array length");
 
     currType = new BaseType(type.INT);
   }
@@ -347,7 +347,7 @@ public class StatementVisitor implements Visitor {
       }
       Type expectedType = m.params.get(i);
       n.el.get(i).accept(this);
-      matches(expectedType, currType, n.line_number);
+      matches(expectedType, currType, n.line_number, "argument list");
     }
     currType = m.retType;
   }
@@ -385,7 +385,7 @@ public class StatementVisitor implements Visitor {
   // Exp e;
   public void visit(NewArray n) {
     n.e.accept(this);
-    matchesInt(n.line_number);
+    matchesInt(n.line_number, "array size");
     currType = new BaseType(type.INT_ARRAY);
   }
 
@@ -400,7 +400,7 @@ public class StatementVisitor implements Visitor {
   // Exp e;
   public void visit(Not n) {
     n.e.accept(this);
-    matchesBool(n.line_number);
+    matchesBool(n.line_number, "NOT");
     currType = new BaseType(type.BOOLEAN);
   }
 

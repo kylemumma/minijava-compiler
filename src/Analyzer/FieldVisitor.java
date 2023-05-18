@@ -37,7 +37,7 @@ public class FieldVisitor implements Visitor {
   }
 
   private void doesNotSupportMainClassInstances(int line_number) {
-    System.err.println(line_number + ": error: MiniJava does not support instances of the Main Class");
+    System.err.println(line_number + ": error: MiniJava does not support instances of the main class");
   }
 
 
@@ -82,10 +82,6 @@ public class FieldVisitor implements Visitor {
   // Identifier i;
   public void visit(VarDecl n) {
     currIdentifierName = n.i.s;
-    if (currIdentifierName == mainClass) {
-        doesNotSupportMainClassInstances(n.line_number);
-        return;
-    }
     n.t.accept(this);
   }
 
@@ -135,6 +131,10 @@ public class FieldVisitor implements Visitor {
 
   // String s;
   public void visit(IdentifierType n) {
+    if (n.s.equals(mainClass)) {
+      doesNotSupportMainClassInstances(n.line_number);
+      return;
+  }
     Type t = gst.Lookup(n.s);
     if (t instanceof UnknownType) {
         cannotFindSymbol(n.line_number, n.s);

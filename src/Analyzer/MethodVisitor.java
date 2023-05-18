@@ -43,7 +43,7 @@ public class MethodVisitor implements Visitor {
   }
 
   private void doesNotSupportMainClassInstances(int line_number) {
-    System.err.println(line_number + ": error: MiniJava does not support instances of the Main Class");
+    System.err.println(line_number + ": error: MiniJava does not support instances of the main class");
   }
 
   private void notOverrideCorrectly(int line_number, String method) {
