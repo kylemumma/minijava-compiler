@@ -95,7 +95,7 @@
     <java classname="MiniJava" classpath="build/classes;lib/java-cup-11b.jar"
           fork="true">
       <arg value = "-T"/>
-      <arg value = "SamplePrograms/SampleMiniJavaPrograms/DeclareB4Use.java"/>
+      <arg value = "SamplePrograms/Example2.java"/>
       <assertions> <enable/> </assertions>
     </java>
   </target>

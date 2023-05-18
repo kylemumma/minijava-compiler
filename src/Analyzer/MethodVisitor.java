@@ -232,20 +232,15 @@ public class MethodVisitor implements Visitor {
   // String s;
   public void visit(IdentifierType n) {
     Type t = gst.Lookup(n.s);
-    if (t instanceof UnknownType) {
-        cannotFindSymbol(n.line_number, n.s);
-    } else {
-        ClassType ct = (ClassType)t;
-        if (currIdentifierName == null) {
-            // must be return type of method
-            currMethod.retType = ct;
-            return;
-        }
-        if (isParam) currMethod.params.add(ct);
-        boolean res = currMethod.st.Enter(currIdentifierName, ct);
-        if (!res) {
-            duplicateError(n.line_number, currIdentifierName, currMethod.name);
-        }
+    if (currIdentifierName == null) {
+        // must be return type of method
+        currMethod.retType = t;
+        return;
+    }
+    if (isParam) currMethod.params.add(t);
+    boolean res = currMethod.st.Enter(currIdentifierName, t);
+    if (!res) {
+        duplicateError(n.line_number, currIdentifierName, currMethod.name);
     }
   }
 
