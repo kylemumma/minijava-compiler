@@ -6,7 +6,10 @@ class ExampleOrder {
 }
 
 class c1 {
-    public int f() {
+    int a;
+    int b;
+    int c;
+    public int f(int a, int b) {
         int a;
         int b;
         int c;
@@ -17,12 +20,13 @@ class c1 {
         }
         return 5;
     }
-    public int middle() {
+    public int middle(int c) {
+        int a;
+        a = this.f(42, 32, 25);
         return 55;
     }
+        
     public int last() {
         return 555;
     }
 }
-
-class c2 {}

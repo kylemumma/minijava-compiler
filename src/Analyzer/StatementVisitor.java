@@ -229,6 +229,7 @@ public class StatementVisitor implements Visitor {
   // Exp e;
   public void visit(Print n) {
     n.e.accept(this);
+    matchesInt(n.line_number, "print");
     currType = null;
   }
   
@@ -348,11 +349,12 @@ public class StatementVisitor implements Visitor {
       return;
     }
     MethodType m = (MethodType) t;
+    if (m.params.size() != n.el.size()) {
+      signatureNotMatch(n.line_number, cl, m);
+      currType = m.retType;
+      return;
+    }
     for (int i = 0; i < m.params.size(); i++) {
-      if (i >= n.el.size()) {
-        signatureNotMatch(n.line_number, cl, m);
-        break;
-      }
       Type expectedType = m.params.get(i);
       n.el.get(i).accept(this);
       matches(expectedType, currType, n.line_number, "argument list");

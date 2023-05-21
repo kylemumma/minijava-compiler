@@ -232,6 +232,9 @@ public class MethodVisitor implements Visitor {
   // String s;
   public void visit(IdentifierType n) {
     Type t = gst.Lookup(n.s);
+    if (t instanceof UnknownType) {
+      cannotFindSymbol(n.line_number, n.s);
+    }
     if (currIdentifierName == null) {
         // must be return type of method
         currMethod.retType = t;
