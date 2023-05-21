@@ -1,0 +1,15 @@
+CSE 401 23sp Project III - Semantics
+
+Missing error report: methods must be called only with the same number of arguments specified in their definition. (-2)
+
+Missing error report: “System.out.println” can only take integer arguments. (-2)
+
+Missing error report: a method cannot take an undeclared type as an argument. For example, if class Bar is not defined, then ‘public int foo(Bar b)’ should fail type checking. (-2)
+
+False error report: when a subclass overrides a method from the superclass, the subclass method’s return type can be a subclass of the superclass method’s return type. (-2)
+
+Staff had to modify src code to get project to build because of issues with Display AST node being present. (-5)
+
+Missing semantics-notes.txt. (-2)
+
+Total: 67/82
