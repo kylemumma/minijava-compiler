@@ -156,7 +156,7 @@ public class MethodVisitor implements Visitor {
       if (og.params.size() != currMethod.params.size()) {
         notOverrideCorrectly(n.line_number, currMethod.name);
         return;
-      } else if (!exactlyMatches(og.retType, currMethod.retType)) {
+      } else if (!og.retType.assignmentCompatible(currMethod.retType)) {
         notOverrideCorrectly(n.line_number, currMethod.name);
         return;
       } else {
