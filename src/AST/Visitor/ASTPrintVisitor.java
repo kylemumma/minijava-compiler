@@ -28,14 +28,6 @@ public class ASTPrintVisitor implements Visitor {
     System.out.println(s);
     nl = true;
   }
-
-  // Display added for toy example language.  Not used in regular MiniJava
-  public void visit(Display n) {
-    println("Display");
-    indent++;
-    n.e.accept(this);
-    indent--;
-  }
   
   // MainClass m;
   // ClassDeclList cl;
