@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import AST.*;
 import AST.Visitor.Visitor;
-import Analyzer.*;
+import Analyzer.SymbolTable.ClassSymbolTable;
+import Analyzer.SymbolTable.GlobalSymbolTable;
+import Analyzer.SymbolTable.RegularSymbolTable;
+import Analyzer.Type.ClassType;
 
 // fills out a global symbol table from a program ast node
 

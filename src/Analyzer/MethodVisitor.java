@@ -1,16 +1,17 @@
 package Analyzer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import AST.*;
 import AST.Visitor.Visitor;
-import Analyzer.*;
+import Analyzer.Type.Type;
+import Analyzer.Type.type;
+import Analyzer.Type.UnknownType;
+import Analyzer.Type.VoidType;
+import Analyzer.SymbolTable.GlobalSymbolTable;
+import Analyzer.SymbolTable.RegularSymbolTable;
+import Analyzer.Type.BaseType;
+import Analyzer.Type.ClassType;
+import Analyzer.Type.MethodType;
 
 // fills out a global symbol table from a program ast node
 

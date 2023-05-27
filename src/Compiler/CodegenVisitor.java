@@ -1,53 +1,59 @@
-package Analyzer;
+package Compiler;
 
-
-import AST.*;
 import AST.Visitor.Visitor;
+import AST.*;
 import Analyzer.Type.Type;
-import Analyzer.Type.UnknownType;
 import Analyzer.Type.type;
+import Analyzer.Type.UnknownType;
+import Analyzer.SymbolTable.ClassSymbolTable;
 import Analyzer.SymbolTable.GlobalSymbolTable;
+import Analyzer.SymbolTable.RegularSymbolTable;
 import Analyzer.Type.BaseType;
 import Analyzer.Type.ClassType;
+import Analyzer.Type.MethodType;
 
 // fills out a global symbol table from a program ast node
 
-public class FieldVisitor implements Visitor {
+public class CodegenVisitor implements Visitor {
 
   
   GlobalSymbolTable gst;
-  ClassType currClass;
-  String currIdentifierName; // if finding out type later
-  String mainClass;
   boolean good;
-
 
   public boolean activate(Program p, GlobalSymbolTable g) {
     gst = g;
     good = true;
     p.accept(this);
+
     return good;
   }
 
-  private void cannotFindSymbol(int line_number, String name) {
-    System.err.println(line_number + ": error: cannot find symbol: " + name);
-    good = false;
+
+  // write "op src,dst" to .asm output
+  private void genbin(String op, String src, String dst) {
+    System.out.println(op + " " + src + "," + dst);
   }
 
-  private void duplicateError(int line_number, String name, String className) {
-    System.err.println(line_number + ": error: variable " + name + " is already defined in class " + className);
-    good = false;
+  // write "op lbl" to .asm output
+  private void genbin(String op, String lbl) {
+    System.out.println(op + " " + lbl);
   }
 
-  private void doesNotSupportMainClassInstances(int line_number) {
-    System.err.println(line_number + ": error: MiniJava does not support instances of the main class");
-    good = false;
+   // write "op lbl" to .asm output
+   private void p(String str) {
+    System.out.println(str);
   }
 
+  private void duplicateError(int line_number, String name) {
+    System.err.println(line_number + ": error: duplicate class: " + name);
+    good = false;
+  }
 
   // MainClass m;
   // ClassDeclList cl;
   public void visit(Program n) {
+    p(".text");
+    p(".globl asm_main");
     n.m.accept(this);
     for ( int i = 0; i < n.cl.size(); i++ ) {
         n.cl.get(i).accept(this);
@@ -57,17 +63,17 @@ public class FieldVisitor implements Visitor {
   // Identifier i1,i2;
   // Statement s;
   public void visit(MainClass n) {
-    // no need for symbol table for MainClass
-    mainClass = n.i1.s;
+    p("asm_main:");
+    n.s.accept(this);
+    p("ret");
   }
 
   // Identifier i;
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclSimple n) {
-    currClass = (ClassType) gst.Lookup(n.i.s);
-    for (int i = 0; i < n.vl.size(); i++) {
-        n.vl.get(i).accept(this);
+    for (int i = 0; i < n.ml.size(); i++) {
+        n.ml.get(i).accept(this);
     }
   }
  
@@ -76,17 +82,15 @@ public class FieldVisitor implements Visitor {
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclExtends n) {
-    currClass = (ClassType) gst.Lookup(n.i.s);
-    for (int i = 0; i < n.vl.size(); i++) {
-        n.vl.get(i).accept(this);
+    for (int i = 0; i < n.ml.size(); i++) {
+        n.ml.get(i).accept(this);
     }
   }
 
   // Type t;
   // Identifier i;
   public void visit(VarDecl n) {
-    currIdentifierName = n.i.s;
-    n.t.accept(this);
+
   }
 
   // Type t;
@@ -96,7 +100,9 @@ public class FieldVisitor implements Visitor {
   // StatementList sl;
   // Exp e;
   public void visit(MethodDecl n) {
-
+    for (int i = 0; i < n.sl.size(); i++) {
+        n.sl.get(i).accept(this);
+    }
   }
 
   // Type t;
@@ -106,49 +112,20 @@ public class FieldVisitor implements Visitor {
   }
 
   public void visit(IntArrayType n) {
-    BaseType bt = new BaseType();
-    bt.tp = type.INT_ARRAY;
-    boolean res = currClass.st.fields.Enter(currIdentifierName, bt);
-    if (!res) {
-        duplicateError(n.line_number, currIdentifierName, currClass.name);
-    }
+
   }
 
   public void visit(BooleanType n) {
-    BaseType bt = new BaseType();
-    bt.tp = type.BOOLEAN;
-    boolean res = currClass.st.fields.Enter(currIdentifierName, bt);
-    if (!res) {
-        duplicateError(n.line_number, currIdentifierName, currClass.name);
-    }
-
+ 
   }
 
   public void visit(IntegerType n) {
-    BaseType bt = new BaseType();
-    bt.tp = type.INT;
-    boolean res = currClass.st.fields.Enter(currIdentifierName, bt);
-    if (!res) {
-        duplicateError(n.line_number, currIdentifierName, currClass.name);
-    }
+
   }
 
   // String s;
   public void visit(IdentifierType n) {
-    if (n.s.equals(mainClass)) {
-      doesNotSupportMainClassInstances(n.line_number);
-      return;
-  }
-    Type t = gst.Lookup(n.s);
-    if (t instanceof UnknownType) {
-        cannotFindSymbol(n.line_number, n.s);
-    } else {
-        ClassType ct = (ClassType)t;
-        boolean res = currClass.st.fields.Enter(currIdentifierName, ct);
-        if (!res) {
-            duplicateError(n.line_number, currIdentifierName, currClass.name);
-        }
-    }
+
   }
 
   // StatementList sl;
@@ -170,7 +147,9 @@ public class FieldVisitor implements Visitor {
 
   // Exp e;
   public void visit(Print n) {
-
+    n.e.accept(this);
+    p("movq %rax,%rdi");
+    p("call put");
   }
   
   // Identifier i;
@@ -197,7 +176,11 @@ public class FieldVisitor implements Visitor {
 
   // Exp e1,e2;
   public void visit(Plus n) {
-
+    n.e1.accept(this);
+    p("pushq %rax");
+    n.e2.accept(this);
+    p("popq %rdx");
+    p("addq %rdx,%rax");
   }
 
   // Exp e1,e2;
@@ -224,12 +207,12 @@ public class FieldVisitor implements Visitor {
   // Identifier i;
   // ExpList el;
   public void visit(Call n) {
-
+    
   }
 
   // int i;
   public void visit(IntegerLiteral n) {
-
+    genbin("movq", "$" + Integer.toString(n.i), "%rax");
   }
 
   public void visit(True n) {

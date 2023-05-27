@@ -3,18 +3,21 @@ import Parser.*;
 import AST.*;
 import AST.Visitor.*;
 import Analyzer.analyzer;
-import Analyzer.SymbolTable;
+import Analyzer.SymbolTable.GlobalSymbolTable;
+import Analyzer.SymbolTable.SymbolTable;
+import Compiler.compiler;
 import Analyzer.SymbolTablePrinter;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
-import java.util.*;
 import java.io.*;
 
 public class MiniJava {
     public static void main(String[] args) {
         // args[0] = -S
         // args[1] = "<filename>.java"
-        if (args.length != 2) {
+        if (args.length == 1) {
+            compile(args[0]);
+        } else if (args.length != 2) {
             System.err.println("Usage: java MiniJava <option> <filename>");
             System.exit(1);
         } else if (args[0].equals("-S")) {
@@ -79,7 +82,6 @@ public class MiniJava {
             // declarations in the CUP input file giving the type of the
             // root node, so we suppress warnings for the next assignment.
             
-            @SuppressWarnings("unchecked")
             Program program = (Program)root.value;
             program.accept(v);
             System.out.println();
@@ -118,6 +120,38 @@ public class MiniJava {
             } else {
                 System.exit(1);
             }
+        } catch (Exception e) {
+            // yuck: some kind of error in the compiler implementation
+            // that we're not expecting (a bug!)
+            System.err.println("Unexpected internal compiler error: " + 
+                               e.toString());
+            // print out a stack dump
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    static void compile(String filename) {
+        try {
+            // create a scanner on the input file
+            ComplexSymbolFactory sf = new ComplexSymbolFactory();
+            InputStream istream = new FileInputStream(filename);
+            Reader in = new BufferedReader(new InputStreamReader(istream));
+            scanner s = new scanner(in, sf);
+            parser p = new parser(s, sf);
+            analyzer a = new analyzer(p);
+            SymbolTable g = a.analyze();
+            boolean worked = a.valid();
+            if (!worked) {
+                System.exit(1);
+            }
+            compiler c = new compiler((GlobalSymbolTable)g, a.getProgram());
+            boolean good = c.compile();
+            if (!good) {
+                System.exit(1);
+            }
+            System.exit(0);
+            
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
             // that we're not expecting (a bug!)

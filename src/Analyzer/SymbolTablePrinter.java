@@ -2,6 +2,14 @@ package Analyzer;
 
 import java.util.stream.Collectors;
 
+import Analyzer.SymbolTable.SymbolTable;
+import Analyzer.Type.Type;
+import Analyzer.SymbolTable.ClassSymbolTable;
+import Analyzer.SymbolTable.GlobalSymbolTable;
+import Analyzer.SymbolTable.RegularSymbolTable;
+import Analyzer.Type.ClassType;
+import Analyzer.Type.MethodType;
+
 public class SymbolTablePrinter {
     // g_in MUST BE A GlobalSymbolTable xD
     public static void PrintGlobalSymbolTable(SymbolTable g_in) {
