@@ -19,10 +19,12 @@ public class CodegenVisitor implements Visitor {
   
   GlobalSymbolTable gst;
   boolean good;
+  int lblCounter;
 
   public boolean activate(Program p, GlobalSymbolTable g) {
     gst = g;
     good = true;
+    lblCounter = 0;
     p.accept(this);
 
     return good;
@@ -42,6 +44,10 @@ public class CodegenVisitor implements Visitor {
    // write "op lbl" to .asm output
    private void p(String str) {
     System.out.println(str);
+  }
+
+  private int id() {
+    return lblCounter++;
   }
 
   private void duplicateError(int line_number, String name) {
@@ -166,7 +172,12 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e1,e2;
   public void visit(And n) {
-
+    String skipLabel = "and" + id();
+    n.e1.accept(this);
+    p("cmpq $0, %rax");
+    p("je " + skipLabel);
+    n.e2.accept(this);
+    p(skipLabel + ":");
   }
 
   // Exp e1,e2;
@@ -185,12 +196,21 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e1,e2;
   public void visit(Minus n) {
-
+    n.e1.accept(this);
+    p("pushq %rax");
+    n.e2.accept(this);
+    p("popq %rdx");
+    p("subq %rax,%rdx");
+    p("movq %rdx,%rax");
   }
 
   // Exp e1,e2;
   public void visit(Times n) {
-
+    n.e1.accept(this);
+    p("pushq %rax");
+    n.e2.accept(this);
+    p("popq %rdx");
+    p("imulq %rdx,%rax");
   }
 
   // Exp e1,e2;
