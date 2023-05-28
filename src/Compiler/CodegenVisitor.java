@@ -288,7 +288,11 @@ public class CodegenVisitor implements Visitor {
 
   // Identifier i;
   public void visit(NewObject n) {
-
+    // @todo will need to change num_bytes param once fields become a thing
+    p("movq 8,%rdi");
+    p("call mjcalloc");
+    p("movq " + n.i.s + "$$, (%rax)");
+    p("ret");
   }
 
   // Exp e;
