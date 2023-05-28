@@ -190,7 +190,7 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   // Exp e;
   public void visit(Assign n) {
-
+    
   }
 
   // Identifier i;
@@ -291,8 +291,8 @@ public class CodegenVisitor implements Visitor {
     // @todo will need to change num_bytes param once fields become a thing
     p("movq 8,%rdi");
     p("call mjcalloc");
-    p("movq " + n.i.s + "$$, (%rax)");
-    p("ret");
+    p("leaq "+ n.i.s + "$$(%rip),%rdx");  // %rip is used for pc-relative addressing....
+    p("movq %rdx,(%rax)");
   }
 
   // Exp e;
