@@ -31,6 +31,7 @@ ret
 YoMama$potato:
 pushq %rbp
 movq %rsp, %rbp
+subq $8,%rsp
 movq 32(%rbp),%rax
 movq %rax,%rdi
 call put
@@ -40,7 +41,10 @@ call put
 movq 16(%rbp),%rax
 movq %rax,%rdi
 call put
-movq $5,%rax
+movq 32(%rbp),%rax
+movq %rax,-8(%rbp)
+movq -8(%rbp),%rax
+addq $8,%rsp
 popq %rbp
 ret
 

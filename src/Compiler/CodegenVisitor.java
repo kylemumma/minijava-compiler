@@ -134,11 +134,18 @@ public class CodegenVisitor implements Visitor {
   // StatementList sl;
   // Exp e;
   public void visit(MethodDecl n) {
+    p("pushq %rbp");
+    p("movq %rsp, %rbp");
+    genbin("subq", "$"+Integer.toString(8*n.vl.size()), "%rsp");
+
     scope = ((MethodType)currClass.Lookup(n.i.s)).st;
     for (int i = 0; i < n.sl.size(); i++) {
         n.sl.get(i).accept(this);
     }
     n.e.accept(this);
+
+    genbin("addq", "$"+Integer.toString(8*n.vl.size()), "%rsp");
+    p("popq %rbp");
     p("ret");
     p("");
   }
@@ -193,7 +200,9 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   // Exp e;
   public void visit(Assign n) {
-    
+    n.e.accept(this);
+    Type t = scope.Lookup(n.i.s);
+    genbin("movq", "rax", -t.offset+"(%rbp)");
   }
 
   // Identifier i;
@@ -264,18 +273,17 @@ public class CodegenVisitor implements Visitor {
     MethodType mt = (MethodType)currClass.Lookup(n.i.s);
 
     // push params
-    int numParams = 1 + n.el.size();
+    int numParams = n.el.size() + 1;
+    if (numParams % 2 == 1) {
+      p("movq $-1,%rbx");
+      p("pushq %rbx"); // junk memory
+      numParams++;
+    }
     p("movq (%rax),%rbx");
     p("pushq %rbx"); // rbx should not be changed in evaluating expressions
     for (int i = 0; i < n.el.size(); i++) {
       n.el.get(i).accept(this);
       p("pushq %rax");
-    }
-    
-    if (numParams % 2 == 1) {
-      p("movq $1313,%rax");
-      p("pushq %rax"); // junk memory
-      numParams++;
     }
 
     p("call *" + mt.offset + "(%rbx)");
@@ -302,7 +310,7 @@ public class CodegenVisitor implements Visitor {
   // String s;
   public void visit(IdentifierExp n) {
     Type t = scope.Lookup(n.s);
-    p("movq *" + t.offset+"(%rbp)" + ",%rax");
+    p("movq " + -t.offset+"(%rbp)" + ",%rax");
   }
 
   public void visit(This n) {
