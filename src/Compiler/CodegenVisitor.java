@@ -175,13 +175,25 @@ public class CodegenVisitor implements Visitor {
 
   // StatementList sl;
   public void visit(Block n) {
-
+    for (int i = 0; i < n.sl.size(); i++) {
+      n.sl.get(i).accept(this);
+    }
   }
 
   // Exp e;
   // Statement s1,s2;
   public void visit(If n) {
+    String labelNum = Integer.toString(id());
+    n.e.accept(this);
+    p("cmpq $0, %rax");  // eval condition
+    p("jz else" + labelNum);  // if false jmp to else
+    n.s1.accept(this);  // true stmt
+    p("jmp done" + labelNum);  // jmp done
 
+    p("else" + labelNum + ":");  // else label???
+    n.s2.accept(this);  // else stmt
+
+    p("done" + labelNum + ":");  // done label
   }
 
   // Exp e;
@@ -223,7 +235,20 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e1,e2;
   public void visit(LessThan n) {
+    String uniqueId = Integer.toString(id());
+    n.e1.accept(this);
+    p("pushq %rax");
+    n.e2.accept(this);
+    p("cmpq %rax,(%rsp)");  // e1 - e2
+    p("popq %rax");
+    p("jl lessthan" + uniqueId);  // if e1-e2<0, then e1 < e2
+    p("movq $0,%rax");  // e1 >= e2
+    p("jmp done" + uniqueId);
 
+    p("lessthan" + uniqueId + ":");  // e1 < e2
+    p("movq $1,%rax");
+
+    p("done" + uniqueId + ":");
   }
 
   // Exp e1,e2;
@@ -330,8 +355,9 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   public void visit(NewObject n) {
     // @todo will need to change num_bytes param once fields become a thing
-    currClass = ((ClassType)gst.Lookup(n.i.s)).st;
-    p("movq $8,%rdi");
+    ClassType ct = (ClassType)gst.Lookup(n.i.s);
+    currClass = ct.st;
+    p("movq $" + ct.sz +",%rdi");
     p("call mjcalloc");
     p("leaq "+ n.i.s + "$$(%rip),%rdx");  // %rip is used for pc-relative addressing....
     p("movq %rdx,(%rax)");
@@ -339,7 +365,8 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e;
   public void visit(Not n) {
-
+    n.e.accept(this);
+    p("xorq $1,%rax");
   }
 
   // String s;
