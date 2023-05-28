@@ -12,7 +12,6 @@ public class compiler {
     }
 
     public boolean compile() {
-        
         CodegenVisitor v = new CodegenVisitor();
         v.activate(p, g);
         return true;

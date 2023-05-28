@@ -25,9 +25,32 @@ public class CodegenVisitor implements Visitor {
     gst = g;
     good = true;
     lblCounter = 0;
+
+    genVtables(g);
+
     p.accept(this);
 
     return good;
+  }
+
+  // doesnt work for extending
+  private void genVtables(GlobalSymbolTable g) {
+    if (!g.classes.isEmpty()) {
+      p(".data");
+    }
+    for (String key : g.classes.keySet()) {
+      ClassType curr = g.classes.get(key);
+      if (curr.parents.isEmpty()) {
+          p(curr.name + "$$: .quad 0");
+      } else {
+          // @todo confused bc of multiple parents
+      }
+
+      for (String k2 : curr.st.methods.keySet()) {
+        p(".quad " + curr.name + "$" + curr.st.methods.get(k2).name);
+      }
+      p("");
+    }
   }
 
 
@@ -72,6 +95,7 @@ public class CodegenVisitor implements Visitor {
     p("asm_main:");
     n.s.accept(this);
     p("ret");
+    p("");
   }
 
   // Identifier i;
@@ -79,7 +103,9 @@ public class CodegenVisitor implements Visitor {
   // MethodDeclList ml;
   public void visit(ClassDeclSimple n) {
     for (int i = 0; i < n.ml.size(); i++) {
-        n.ml.get(i).accept(this);
+        MethodDecl c = n.ml.get(i);
+        p(n.i.s + "$" + c.i.s + ":");
+        c.accept(this);
     }
   }
  
@@ -109,6 +135,9 @@ public class CodegenVisitor implements Visitor {
     for (int i = 0; i < n.sl.size(); i++) {
         n.sl.get(i).accept(this);
     }
+    n.e.accept(this);
+    p("ret");
+    p("");
   }
 
   // Type t;

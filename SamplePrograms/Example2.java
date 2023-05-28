@@ -1,11 +1,17 @@
 class Foo {
-    public static void main(String[] args) {
-  System.out.println(5 + 4 * 3 - 1);
-}
+  public static void main(String[] args) {
+    System.out.println(16);
+  }
 }
 
-class Bar extends Foo { public int bar(Baz f, Bar b) {
-System.out.println(new Thing().method());
-  return 5;
+class Bar { 
+  public int bar() {
+    System.out.println(1);
+    return 5;
+  }
+
+  public int boop() {
+    System.out.println(3);
+    return 3;
+  }
 }
-    }
