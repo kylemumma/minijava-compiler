@@ -199,7 +199,14 @@ public class CodegenVisitor implements Visitor {
   // Exp e;
   // Statement s;
   public void visit(While n) {
-
+    String labelNum = Integer.toString(id());
+    p("while" + labelNum + ":");
+    n.e.accept(this);
+    p("cmpq $0,%rax");
+    p("jz done" + labelNum);
+    n.s.accept(this);
+    p("jmp while" + labelNum);
+    p("done" + labelNum + ":");
   }
 
   // Exp e;
