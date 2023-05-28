@@ -145,7 +145,7 @@ public class MiniJava {
             if (!worked) {
                 System.exit(1);
             }
-            compiler c = new compiler((GlobalSymbolTable)g, a.getProgram());
+            compiler c = new compiler((GlobalSymbolTable)g, a.getProgram(), a.parentToChildrens(), a.rootClasses());
             boolean good = c.compile();
             if (!good) {
                 System.exit(1);

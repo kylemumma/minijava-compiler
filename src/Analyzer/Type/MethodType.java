@@ -7,6 +7,7 @@ import Analyzer.SymbolTable.RegularSymbolTable;
 public class MethodType extends Type {
     public String name;
     public List<Type> params;
+    public int sz;
     public Type retType;
     public RegularSymbolTable st;
     public boolean assignmentCompatible(Type t) {

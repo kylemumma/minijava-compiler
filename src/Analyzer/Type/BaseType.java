@@ -3,6 +3,7 @@ package Analyzer.Type;
 public class BaseType extends Type {
     public type tp;
 
+
     public BaseType () {}
     public BaseType (type tp) {
         this.tp = tp;

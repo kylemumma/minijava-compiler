@@ -46,6 +46,14 @@ public class ClassVisitor implements Visitor {
     }
   }
 
+  public Map<String, List<String>> parentToChildrens() {
+    return parentToChildren;
+  }
+
+  public Set<String> rootClasses() {
+    return rootClasses;
+  }
+
 
   public boolean activate(Program p, GlobalSymbolTable g) {
     gst = g;

@@ -96,7 +96,7 @@
           fork="true"
           output="src/runtime/test.s">
       <!-- <arg value = "-T"/> -->
-      <arg value = "SamplePrograms/Basic.java"/>
+      <arg value = "SamplePrograms/Example2.java"/>
       <assertions> <enable/> </assertions>
     </java>
   </target>

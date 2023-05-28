@@ -1,5 +1,9 @@
 package Analyzer;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import AST.Program;
 import Analyzer.SymbolTable.GlobalSymbolTable;
 import Analyzer.SymbolTable.SymbolTable;
@@ -11,6 +15,8 @@ public class analyzer {
     Symbol root;
     boolean good = true;
     Program p;
+    Map<String, List<String>> parentToChildren;
+    Set<String> rootClasses;
 
     public analyzer(parser p) throws Exception {
         // replace p.parse() with p.debug_parse() in the next line to see
@@ -25,7 +31,10 @@ public class analyzer {
         
         Program program = (Program)root.value;
         GlobalSymbolTable g = new GlobalSymbolTable();
-        good = new ClassVisitor().activate(program, g) && good;
+        ClassVisitor v = new ClassVisitor();
+        good = v.activate(program, g) && good;
+        parentToChildren = v.parentToChildrens();
+        rootClasses = v.rootClasses();
         good = new FieldVisitor().activate(program, g) && good;
         good = new MethodVisitor().activate(program, g) && good;
         good = new StatementVisitor().activate(program, g) && good;
@@ -36,5 +45,11 @@ public class analyzer {
         return (Program) root.value;
     }
 
+    public Map<String, List<String>> parentToChildrens() {
+        return parentToChildren;
+      }
+    public Set<String> rootClasses() {
+        return rootClasses;
+    }
     public boolean valid() { return good; }
 }

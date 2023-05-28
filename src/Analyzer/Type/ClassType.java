@@ -6,6 +6,7 @@ import Analyzer.SymbolTable.ClassSymbolTable;
 
 public class ClassType extends Type {
     public String name;
+    public int sz; // num bytes
     public Set<String> parents; // parent class names
     public ClassSymbolTable st;
     public boolean assignmentCompatible(Type t) {
