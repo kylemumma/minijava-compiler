@@ -18,6 +18,7 @@ public class CodegenVisitor implements Visitor {
 
   
   GlobalSymbolTable gst;
+  ClassSymbolTable currClass; // for call
   boolean good;
   int lblCounter;
 
@@ -252,11 +253,18 @@ public class CodegenVisitor implements Visitor {
 
   }
 
-  // Exp e;
+  // Exp e; (new or this or identifierexp)
   // Identifier i;
   // ExpList el;
   public void visit(Call n) {
-    
+    n.e.accept(this);
+                                // rax is now memory location of a class
+    MethodType mt = (MethodType)currClass.Lookup(n.i.s);
+
+    p("movq (%rax),%rax");
+    p("pushq %rax");
+    p("call *" + mt.offset + "(%rax)");
+    p("popq %rdi");
   }
 
   // int i;
@@ -289,7 +297,8 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   public void visit(NewObject n) {
     // @todo will need to change num_bytes param once fields become a thing
-    p("movq 8,%rdi");
+    currClass = ((ClassType)gst.Lookup(n.i.s)).st;
+    p("movq $8,%rdi");
     p("call mjcalloc");
     p("leaq "+ n.i.s + "$$(%rip),%rdx");  // %rip is used for pc-relative addressing....
     p("movq %rdx,(%rax)");

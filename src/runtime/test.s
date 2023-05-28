@@ -1,29 +1,25 @@
 .data
-Bar$$: .quad 0
-.quad Bar$boop
-.quad Bar$bar
+Basic$$: .quad 0
 
-Foo$$: .quad 0
+YoMama$$: .quad 0
+.quad YoMama$potato
 
 .text
 .globl asm_main
 asm_main:
-movq $16,%rax
+movq $8,%rdi
+call mjcalloc
+leaq YoMama$$(%rip),%rdx
+movq %rdx,(%rax)
+movq (%rax),%rax
+pushq %rax
+call *8(%rax)
+popq %rdi
 movq %rax,%rdi
 call put
 ret
 
-Bar$bar:
-movq $1,%rax
-movq %rax,%rdi
-call put
-movq $5,%rax
-ret
-
-Bar$boop:
-movq $3,%rax
-movq %rax,%rdi
-call put
-movq $3,%rax
+YoMama$potato:
+movq $0,%rax
 ret
 
