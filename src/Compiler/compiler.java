@@ -57,8 +57,8 @@ public class compiler {
                 mt.offset = methodOffset;
                 methodOffset += 8;
             }
-            mt.sz = (mt.st.symbols.size() + 1) * 8; // size of stack frame
-            if (mt.sz % 16 != 0) mt.sz += 8;
+            //mt.sz = (mt.st.symbols.size() + 1) * 8; // size of stack frame
+            //if (mt.sz % 16 != 0) mt.sz += 8;
         }
 
 

@@ -134,14 +134,12 @@ public class MethodVisitor implements Visitor {
     currMethod.name = n.i.s;
     currMethod.params = new ArrayList<Type>();
     currMethod.st = new RegularSymbolTable(currClass.st.fields);
-    offset = 8;
+    offset = -currMethod.params.size() * 8 - 8;
     isParam = true;
     for (int i = 0; i < n.fl.size(); i++) {
         n.fl.get(i).accept(this);
     }
-    if (offset % 16 != 0) {
-      offset += 8;
-    }
+    offset = 8;
     isParam = false;
     for (int i = 0; i < n.vl.size(); i++) {
         n.vl.get(i).accept(this);

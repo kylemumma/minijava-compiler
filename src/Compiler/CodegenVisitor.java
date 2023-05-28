@@ -19,6 +19,7 @@ public class CodegenVisitor implements Visitor {
   
   GlobalSymbolTable gst;
   ClassSymbolTable currClass; // for call
+  RegularSymbolTable scope;
   boolean good;
   int lblCounter;
 
@@ -133,6 +134,7 @@ public class CodegenVisitor implements Visitor {
   // StatementList sl;
   // Exp e;
   public void visit(MethodDecl n) {
+    scope = ((MethodType)currClass.Lookup(n.i.s)).st;
     for (int i = 0; i < n.sl.size(); i++) {
         n.sl.get(i).accept(this);
     }
@@ -299,7 +301,8 @@ public class CodegenVisitor implements Visitor {
 
   // String s;
   public void visit(IdentifierExp n) {
-
+    Type t = scope.Lookup(n.s);
+    p("movq *" + t.offset+"(%rbp)" + ",%rax");
   }
 
   public void visit(This n) {
