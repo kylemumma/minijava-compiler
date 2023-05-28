@@ -19,7 +19,7 @@ public class CodegenVisitor implements Visitor {
   
   GlobalSymbolTable gst;
   ClassSymbolTable currClass; // for call
-  RegularSymbolTable scope;
+  MethodType scope;
   boolean good;
   int lblCounter;
 
@@ -138,7 +138,7 @@ public class CodegenVisitor implements Visitor {
     p("movq %rsp, %rbp");
     genbin("subq", "$"+Integer.toString(8*n.vl.size()), "%rsp");
 
-    scope = ((MethodType)currClass.Lookup(n.i.s)).st;
+    scope = (MethodType)currClass.Lookup(n.i.s);
     for (int i = 0; i < n.sl.size(); i++) {
         n.sl.get(i).accept(this);
     }
@@ -201,8 +201,8 @@ public class CodegenVisitor implements Visitor {
   // Exp e;
   public void visit(Assign n) {
     n.e.accept(this);
-    Type t = scope.Lookup(n.i.s);
-    genbin("movq", "rax", -t.offset+"(%rbp)");
+    Type t = scope.st.Lookup(n.i.s);
+    genbin("movq", "%rax", -t.offset+"(%rbp)");
   }
 
   // Identifier i;
@@ -279,7 +279,11 @@ public class CodegenVisitor implements Visitor {
       p("pushq %rbx"); // junk memory
       numParams++;
     }
-    p("movq (%rax),%rbx");
+    if (n.e instanceof This) {
+      p("movq %rax,%rbx");
+    } else {
+      p("movq (%rax),%rbx");
+    }
     p("pushq %rbx"); // rbx should not be changed in evaluating expressions
     for (int i = 0; i < n.el.size(); i++) {
       n.el.get(i).accept(this);
@@ -300,21 +304,22 @@ public class CodegenVisitor implements Visitor {
   }
 
   public void visit(True n) {
-
+    p("movq $1,%rax");
   }
 
   public void visit(False n) {
-
+    p("movq $0, %rax");
   }
 
   // String s;
   public void visit(IdentifierExp n) {
-    Type t = scope.Lookup(n.s);
+    Type t = scope.st.Lookup(n.s);
     p("movq " + -t.offset+"(%rbp)" + ",%rax");
   }
 
   public void visit(This n) {
-
+    int offset = -scope.params.size() * 8 - 16;
+    p("movq " + -offset+"(%rbp)" + ",%rax");
   }
 
   // Exp e;

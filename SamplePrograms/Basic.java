@@ -10,6 +10,8 @@ class YoMama {
         System.out.println(k);
         System.out.println(potaot);
         System.out.println(jelly);
-        return a;
+        a = k;
+        System.out.println(this.potato(1, 1, 0));
+        return a + potaot;
     }
 }
