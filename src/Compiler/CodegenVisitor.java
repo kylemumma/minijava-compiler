@@ -288,7 +288,12 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e1,e2;
   public void visit(ArrayLookup n) {
-
+    // @todo figure out how to handle length
+    n.e1.accept(this); 
+    p("pushq %rax");
+    n.e2.accept(this);
+    p("popq %rdx");
+    p("movq (%rdx,%rax,8),%rax");  // rax<-*(e1 + 8*e2)
   }
 
   // Exp e;
@@ -356,7 +361,10 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e;
   public void visit(NewArray n) {
-
+    n.e.accept(this);  // %rax<-array_size
+    p("imulq $8,%rax");
+    p("movq %rax,%rdi");
+    p("call mjcalloc");
   }
 
   // Identifier i;
@@ -366,7 +374,8 @@ public class CodegenVisitor implements Visitor {
     currClass = ct.st;
     p("movq $" + ct.sz +",%rdi");
     p("call mjcalloc");
-    p("leaq "+ n.i.s + "$$(%rip),%rdx");  // %rip is used for pc-relative addressing....
+    // %rip is used for pc-relative addressing, the addr of our .data label is an offset from rip (pc)
+    p("leaq "+ n.i.s + "$$(%rip),%rdx");
     p("movq %rdx,(%rax)");
   }
 
