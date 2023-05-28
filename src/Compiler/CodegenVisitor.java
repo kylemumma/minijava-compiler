@@ -227,7 +227,14 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   // Exp e1,e2;
   public void visit(ArrayAssign n) {
-
+    n.i.accept(this);
+    p("pushq %rax");
+    n.e1.accept(this);
+    p("pushq %rax");
+    n.e2.accept(this);
+    p("popq %rdx");
+    p("popq %rdi");
+    p("movq %rax,(%rdi,%rdx,8)");
   }
 
   // Exp e1,e2;
