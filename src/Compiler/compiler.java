@@ -57,13 +57,7 @@ public class compiler {
                 mt.offset = methodOffset;
                 methodOffset += 8;
             }
-            // always start at 8 for local method variables
-            int localoffset = 0;
-            for (Type t : mt.st.symbols.values()) {
-                t.offset = localoffset;
-                localoffset += 8;
-            }
-            mt.sz = localoffset; // size of stack frame
+            mt.sz = (mt.st.symbols.size() + 1) * 8; // size of stack frame
             if (mt.sz % 16 != 0) mt.sz += 8;
         }
 

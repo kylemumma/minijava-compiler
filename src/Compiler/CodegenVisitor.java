@@ -261,10 +261,27 @@ public class CodegenVisitor implements Visitor {
                                 // rax is now memory location of a class
     MethodType mt = (MethodType)currClass.Lookup(n.i.s);
 
-    p("movq (%rax),%rax");
-    p("pushq %rax");
-    p("call *" + mt.offset + "(%rax)");
-    p("popq %rdi");
+    // push params
+    int numParams = 1 + n.el.size();
+    p("movq (%rax),%rbx");
+    p("pushq %rbx"); // rbx should not be changed in evaluating expressions
+    for (int i = 0; i < n.el.size(); i++) {
+      n.el.get(i).accept(this);
+      p("pushq %rax");
+    }
+    
+    if (numParams % 2 == 1) {
+      p("movq $1313,%rax");
+      p("pushq %rax"); // junk memory
+      numParams++;
+    }
+
+    p("call *" + mt.offset + "(%rbx)");
+
+    // pop params
+    for (int i = 0; i < numParams; i++) {
+      p("popq %rdi");
+    }
   }
 
   // int i;

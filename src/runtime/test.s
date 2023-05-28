@@ -11,15 +11,25 @@ movq $8,%rdi
 call mjcalloc
 leaq YoMama$$(%rip),%rdx
 movq %rdx,(%rax)
-movq (%rax),%rax
+movq (%rax),%rbx
+pushq %rbx
+movq $515315,%rax
 pushq %rax
-call *8(%rax)
+pushq %rax
+movq $1313,%rax
+pushq %rax
+call *8(%rbx)
+popq %rdi
+popq %rdi
+popq %rdi
 popq %rdi
 movq %rax,%rdi
 call put
 ret
 
 YoMama$potato:
-movq $0,%rax
+movq %rax,%rdi
+call put
+movq $5,%rax
 ret
 

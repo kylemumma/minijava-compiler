@@ -25,6 +25,7 @@ public class MethodVisitor implements Visitor {
   String mainClass;
   boolean isParam;
   boolean good;
+  int offset;
 
 
   public boolean activate(Program p, GlobalSymbolTable g) {
@@ -133,9 +134,13 @@ public class MethodVisitor implements Visitor {
     currMethod.name = n.i.s;
     currMethod.params = new ArrayList<Type>();
     currMethod.st = new RegularSymbolTable(currClass.st.fields);
+    offset = 8;
     isParam = true;
     for (int i = 0; i < n.fl.size(); i++) {
         n.fl.get(i).accept(this);
+    }
+    if (offset % 16 != 0) {
+      offset += 8;
     }
     isParam = false;
     for (int i = 0; i < n.vl.size(); i++) {
@@ -186,6 +191,8 @@ public class MethodVisitor implements Visitor {
 
   public void visit(IntArrayType n) {
     BaseType bt = new BaseType();
+    bt.offset = offset;
+    offset += 8;
     bt.tp = type.INT_ARRAY;
     if (currIdentifierName == null) {
         // must be return type of method
@@ -201,6 +208,8 @@ public class MethodVisitor implements Visitor {
 
   public void visit(BooleanType n) {
     BaseType bt = new BaseType();
+    bt.offset = offset;
+    offset += 8;
     bt.tp = type.BOOLEAN;
     if (currIdentifierName == null) {
         // must be return type of method
@@ -217,6 +226,8 @@ public class MethodVisitor implements Visitor {
 
   public void visit(IntegerType n) {
     BaseType bt = new BaseType();
+    bt.offset = offset;
+    offset += 8;
     bt.tp = type.INT;
     if (currIdentifierName == null) {
         // must be return type of method
@@ -233,6 +244,8 @@ public class MethodVisitor implements Visitor {
   // String s;
   public void visit(IdentifierType n) {
     Type t = gst.Lookup(n.s);
+    t.offset = offset;
+    offset += 8;
     if (t instanceof UnknownType) {
       cannotFindSymbol(n.line_number, n.s);
     }
