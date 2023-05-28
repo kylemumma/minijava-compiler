@@ -15,8 +15,9 @@ movq (%rax),%rbx
 pushq %rbx
 movq $515315,%rax
 pushq %rax
+movq $42,%rax
 pushq %rax
-movq $1313,%rax
+movq $2,%rax
 pushq %rax
 call *8(%rbx)
 popq %rdi
@@ -28,8 +29,18 @@ call put
 ret
 
 YoMama$potato:
+pushq %rbp
+movq %rsp, %rbp
+movq 32(%rbp),%rax
+movq %rax,%rdi
+call put
+movq 24(%rbp),%rax
+movq %rax,%rdi
+call put
+movq 16(%rbp),%rax
 movq %rax,%rdi
 call put
 movq $5,%rax
+popq %rbp
 ret
 
