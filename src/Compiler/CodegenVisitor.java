@@ -355,7 +355,8 @@ public class CodegenVisitor implements Visitor {
 
   // String s;
   public void visit(IdentifierExp n) {
-    callClass = ((ClassType)gst.Lookup(n.s)).st;
+    callClass = ((ClassType)scope.st.Lookup(n.s)).st;
+    //callClass = ((ClassType)gst.Lookup(n.s)).st;
     Type t = scope.st.Lookup(n.s);
     p("movq " + -t.offset+"(%rbp)" + ",%rax");
   }
