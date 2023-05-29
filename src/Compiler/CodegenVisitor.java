@@ -227,6 +227,7 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   // Exp e1,e2;
   public void visit(ArrayAssign n) {
+    // @ todo bounds check
     n.i.accept(this);
     p("pushq %rax");
     n.e1.accept(this);
@@ -295,7 +296,7 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e1,e2;
   public void visit(ArrayLookup n) {
-    // @todo figure out how to handle length
+    // @todo bounds check
     n.e1.accept(this); 
     p("pushq %rax");
     n.e2.accept(this);
@@ -305,7 +306,8 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e;
   public void visit(ArrayLength n) {
-
+    n.e.accept(this);
+    p("movq -8(%rax),%rax");
   }
 
   // Exp e; (new or this or identifierexp)
@@ -368,10 +370,15 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e;
   public void visit(NewArray n) {
-    n.e.accept(this);  // %rax<-array_size
-    p("imulq $8,%rax");
+    n.e.accept(this);
+    p("pushq %rax");  // store length for later
+    p("addq $1,%rax");  // add extra spot for arr_length
+    p("imulq $8,%rax");  
     p("movq %rax,%rdi");
     p("call mjcalloc");
+    p("popq %rdx");
+    p("movq %rdx,(%rax)");  // the quad before the array is its length
+    p("addq $8, %rax");
   }
 
   // Identifier i;
