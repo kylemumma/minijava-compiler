@@ -227,11 +227,17 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   // Exp e1,e2;
   public void visit(ArrayAssign n) {
-    // @ todo bounds check
+    // bounds check
     n.i.accept(this);
     p("pushq %rax");
-    n.e1.accept(this);
     p("pushq %rax");
+    n.e1.accept(this);
+    p("popq %rdx");
+    p("movq %rdx,%rdi");
+    p("movq %rax,%rsi");
+    p("pushq %rax");
+    p("call check_arr_bounds");
+
     n.e2.accept(this);
     p("popq %rdx");
     p("popq %rdi");
@@ -296,10 +302,17 @@ public class CodegenVisitor implements Visitor {
 
   // Exp e1,e2;
   public void visit(ArrayLookup n) {
-    // @todo bounds check
+    // bounds check
     n.e1.accept(this); 
     p("pushq %rax");
+    p("pushq %rax");
     n.e2.accept(this);
+    p("popq %rdx");
+    p("movq %rdx,%rdi");
+    p("movq %rax,%rsi");
+    p("pushq %rax");
+    p("call check_arr_bounds");
+    p("popq %rax");
     p("popq %rdx");
     p("movq (%rdx,%rax,8),%rax");  // rax<-*(e1 + 8*e2)
   }

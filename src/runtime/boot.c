@@ -42,3 +42,11 @@ int main() {
   asm_main();
   return 0;
 }
+
+void check_arr_bounds(uint64_t* a, int i) {
+  uint64_t asz = *(a-1);
+  if(i < 0 || i >= asz) {
+    fprintf(stderr, "Error: array index out of bounds\n");
+    exit(1);
+  }
+}
