@@ -34,6 +34,7 @@ public class ClassVisitor implements Visitor {
         extendMainClassError(locations.get(child), child);
       }
       ClassType t = (ClassType)gst.Lookup(child);
+      t.parent = curType;
       t.parents.addAll(curType.parents);
       t.parents.add(c);
       t.st.parent = curType.st;

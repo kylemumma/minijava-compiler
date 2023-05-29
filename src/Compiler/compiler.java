@@ -25,6 +25,7 @@ public class compiler {
 
     public boolean compile() {
         setLocations();
+        genVtables();
         CodegenVisitor v = new CodegenVisitor();
         v.activate(p, g);
         return true;
@@ -72,4 +73,33 @@ public class compiler {
             dfs(s, 8, 8, null);
         }
     }
+
+    private void genVtables() {
+        for (String s : rootClasses) {
+            genVtableFor((ClassType)g.Lookup(s), new ArrayList<String>());
+        }
+    }
+
+    private void genVtableFor(ClassType ct, List<String> methods) {
+        for (String k : ct.st.methods.keySet()) {
+            MethodType mt = ct.st.methods.get(k);
+            int idx = mt.offset/8;
+            while(methods.size() < idx){methods.add(null);}
+            methods.set(idx-1, ct.name + "$" + mt.name);
+        }
+        if(ct.parent == null) {
+            System.out.println(ct.name + "$$: " + ".quad 0");
+        } else {
+            System.out.println(ct.name + "$$: " + ".quad " + ct.parent.name + "$$");
+        }
+    
+        for (String s : methods) {
+            System.out.println(".quad " + s);
+        }
+        System.out.println("");
+        
+        for (String child : parentToChildren.getOrDefault(ct.name, new ArrayList<String>())) { 
+            genVtableFor((ClassType)g.Lookup(child), methods);
+        }
+      }
 }

@@ -1,6 +1,7 @@
 package Compiler;
 
 import AST.Visitor.Visitor;
+
 import AST.*;
 import Analyzer.Type.Type;
 import Analyzer.Type.type;
@@ -18,7 +19,8 @@ public class CodegenVisitor implements Visitor {
 
   
   GlobalSymbolTable gst;
-  ClassSymbolTable currClass; // for call
+  ClassSymbolTable currClass; // for methods
+  ClassSymbolTable callClass; // for call
   MethodType scope;
   boolean good;
   int lblCounter;
@@ -28,33 +30,10 @@ public class CodegenVisitor implements Visitor {
     good = true;
     lblCounter = 0;
 
-    genVtables(g);
-
     p.accept(this);
 
     return good;
   }
-
-  // doesnt work for extending
-  private void genVtables(GlobalSymbolTable g) {
-    if (!g.classes.isEmpty()) {
-      p(".data");
-    }
-    for (String key : g.classes.keySet()) {
-      ClassType curr = g.classes.get(key);
-      if (curr.parents.isEmpty()) {
-          p(curr.name + "$$: .quad 0");
-      } else {
-          // @todo confused bc of multiple parents
-      }
-
-      for (String k2 : curr.st.methods.keySet()) {
-        p(".quad " + curr.name + "$" + curr.st.methods.get(k2).name);
-      }
-      p("");
-    }
-  }
-
 
   // write "op src,dst" to .asm output
   private void genbin(String op, String src, String dst) {
@@ -104,6 +83,7 @@ public class CodegenVisitor implements Visitor {
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclSimple n) {
+    currClass = ((ClassType)gst.Lookup(n.i.s)).st;
     for (int i = 0; i < n.ml.size(); i++) {
         MethodDecl c = n.ml.get(i);
         p(n.i.s + "$" + c.i.s + ":");
@@ -116,8 +96,11 @@ public class CodegenVisitor implements Visitor {
   // VarDeclList vl;
   // MethodDeclList ml;
   public void visit(ClassDeclExtends n) {
+    currClass = ((ClassType)gst.Lookup(n.i.s)).st;
     for (int i = 0; i < n.ml.size(); i++) {
-        n.ml.get(i).accept(this);
+        MethodDecl c = n.ml.get(i);
+        p(n.i.s + "$" + c.i.s + ":");
+        c.accept(this);
     }
   }
 
@@ -329,7 +312,7 @@ public class CodegenVisitor implements Visitor {
   public void visit(Call n) {
     n.e.accept(this);
                                 // rax is now memory location of a class
-    MethodType mt = (MethodType)currClass.Lookup(n.i.s);
+    MethodType mt = (MethodType)callClass.Lookup(n.i.s);
 
     // push params
     int numParams = n.el.size() + 1;
@@ -372,11 +355,13 @@ public class CodegenVisitor implements Visitor {
 
   // String s;
   public void visit(IdentifierExp n) {
+    callClass = ((ClassType)gst.Lookup(n.s)).st;
     Type t = scope.st.Lookup(n.s);
     p("movq " + -t.offset+"(%rbp)" + ",%rax");
   }
 
   public void visit(This n) {
+    callClass = currClass;
     int offset = -scope.params.size() * 8 - 16;
     p("movq " + -offset+"(%rbp)" + ",%rax");
   }
@@ -398,7 +383,7 @@ public class CodegenVisitor implements Visitor {
   public void visit(NewObject n) {
     // @todo will need to change num_bytes param once fields become a thing
     ClassType ct = (ClassType)gst.Lookup(n.i.s);
-    currClass = ct.st;
+    callClass = ct.st;
     p("movq $" + ct.sz +",%rdi");
     p("call mjcalloc");
     // %rip is used for pc-relative addressing, the addr of our .data label is an offset from rip (pc)
