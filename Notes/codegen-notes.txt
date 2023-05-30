@@ -1,0 +1,10 @@
+For this part of compiler, much of our code generation required on using the DFS algorithm to set up locations for all variables properly, especially in the case
+of extended classes. This allowed us to traverse classes in a topographical order so that we can set up vtables, overrided methods, inherited fields properly the first time.
+Additionally, we made use of instance variables in our visitor class like currClass for the symbol table of the class we are currently in which is helpful for This.
+Additionally, we had callClass variable which contained the current variable we are about to call a function from which was set in the This, IdentifierExp, and New.
+
+We made many changes on old parts, mainly adding fields like offset to the "Type" classes. This made it easy to figure out exactly where to put access, place a value when
+doing anything with identifiers. These were set in our MethodVisitor that we used for semantics. 
+
+Work done:
+Unfortunately, Kyle fell sick with COVID for the project, but he was still able to put in a decent bit of work.
