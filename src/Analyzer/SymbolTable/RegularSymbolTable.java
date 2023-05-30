@@ -35,6 +35,16 @@ public class RegularSymbolTable extends SymbolTable {
             return ret;
         }
     }
+
+    public Type LookupHere(String id) {
+        Type ret = symbols.get(id);
+        if (ret == null) {
+            return new UnknownType();
+        } else {
+            return ret;
+        }
+    }
+
     public boolean Enter(String id, Type typ) {
         if (symbols.containsKey(id)) {
             return false;

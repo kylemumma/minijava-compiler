@@ -4,6 +4,7 @@ import AST.Visitor.Visitor;
 
 import AST.*;
 import Analyzer.Type.Type;
+import Analyzer.Type.UnknownType;
 import Analyzer.SymbolTable.ClassSymbolTable;
 import Analyzer.SymbolTable.GlobalSymbolTable;
 import Analyzer.Type.ClassType;
@@ -44,6 +45,12 @@ public class CodegenVisitor implements Visitor {
    // write "op lbl" to .asm output
    private void p(String str) {
     System.out.println(str);
+  }
+
+  // get pointer to curr classes memory address
+  private void getThis() {
+    int thisOffset = -scope.params.size() * 8 - 16; // each param + ret + rbp
+    p("movq " + -thisOffset + "(%rbp)" + ",%rax");
   }
 
   private int id() {
@@ -193,9 +200,23 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   // Exp e;
   public void visit(Assign n) {
-    n.e.accept(this);
-    Type t = scope.st.Lookup(n.i.s);
-    genbin("movq", "%rax", -t.offset+"(%rbp)");
+    Type idtype = scope.st.LookupHere(n.i.s);
+    boolean local = true;
+    if (idtype instanceof UnknownType) {
+      // is a field, not a local variable
+      idtype = scope.st.Lookup(n.i.s);
+      local = false;
+    }
+    
+    if (local) {
+      n.e.accept(this);
+      genbin("movq", "%rax", -idtype.offset+"(%rbp)");
+    } else {
+      getThis();
+      p("movq %rax,%rdi");
+      n.e.accept(this);
+      genbin("movq", "%rax", idtype.offset+"(%rdi)");
+    }
   }
 
   // Identifier i;
@@ -312,13 +333,9 @@ public class CodegenVisitor implements Visitor {
       p("pushq %rbx"); // junk memory
       numParams++;
     }
-    if (n.e instanceof This) {
-      p("movq %rax,%rbx");
-
-    } else {
-      p("movq (%rax),%rbx");
-    }
-    p("pushq %rbx"); // rbx should not be changed in evaluating expressions
+    // expect $rax holds the memory address of the instance
+    p("pushq %rax");
+    p("movq (%rax),%rbx");
     for (int i = 0; i < n.el.size(); i++) {
       n.el.get(i).accept(this);
       p("pushq %rax");
@@ -347,21 +364,30 @@ public class CodegenVisitor implements Visitor {
 
   // String s;
   public void visit(IdentifierExp n) {
-    Type idtype = scope.st.Lookup(n.s);
+    Type idtype = scope.st.LookupHere(n.s);
+    boolean local = true;
+    if (idtype instanceof UnknownType) {
+      // is a field, not a local variable
+      idtype = scope.st.Lookup(n.s);
+      local = false;
+    }
     if (idtype instanceof ClassType) {
       callClass = ((ClassType)idtype).st;
     } else {
       callClass = null;
     }
-    //callClass = ((ClassType)gst.Lookup(n.s)).st;
-    Type t = scope.st.Lookup(n.s);
-    p("movq " + -t.offset+"(%rbp)" + ",%rax");
+    if (local) {
+      p("movq " + -idtype.offset+"(%rbp)" + ",%rax");
+    } else {
+      getThis();
+      p("movq " + idtype.offset+"(%rax), %rax");
+    }
+    
   }
 
   public void visit(This n) {
     callClass = currClass;
-    int offset = -scope.params.size() * 8 - 16;
-    p("movq " + -offset+"(%rbp)" + ",%rax");
+    getThis();
   }
 
   // Exp e;
@@ -377,6 +403,7 @@ public class CodegenVisitor implements Visitor {
     p("addq $8, %rax");
   }
 
+  // return mem addr
   // Identifier i;
   public void visit(NewObject n) {
     ClassType ct = (ClassType)gst.Lookup(n.i.s);
