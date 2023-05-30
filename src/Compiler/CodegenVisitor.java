@@ -312,10 +312,11 @@ public class CodegenVisitor implements Visitor {
       p("pushq %rbx"); // junk memory
       numParams++;
     }
-    if (n.e instanceof NewObject) {
-      p("movq (%rax),%rbx");
-    } else {
+    if (n.e instanceof This) {
       p("movq %rax,%rbx");
+
+    } else {
+      p("movq (%rax),%rbx");
     }
     p("pushq %rbx"); // rbx should not be changed in evaluating expressions
     for (int i = 0; i < n.el.size(); i++) {
@@ -347,7 +348,6 @@ public class CodegenVisitor implements Visitor {
   // String s;
   public void visit(IdentifierExp n) {
     callClass = ((ClassType)scope.st.Lookup(n.s)).st;
-    //callClass = ((ClassType)gst.Lookup(n.s)).st;
     Type t = scope.st.Lookup(n.s);
     p("movq " + -t.offset+"(%rbp)" + ",%rax");
   }
