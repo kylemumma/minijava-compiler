@@ -4,12 +4,8 @@ import AST.Visitor.Visitor;
 
 import AST.*;
 import Analyzer.Type.Type;
-import Analyzer.Type.type;
-import Analyzer.Type.UnknownType;
 import Analyzer.SymbolTable.ClassSymbolTable;
 import Analyzer.SymbolTable.GlobalSymbolTable;
-import Analyzer.SymbolTable.RegularSymbolTable;
-import Analyzer.Type.BaseType;
 import Analyzer.Type.ClassType;
 import Analyzer.Type.MethodType;
 
@@ -52,11 +48,6 @@ public class CodegenVisitor implements Visitor {
 
   private int id() {
     return lblCounter++;
-  }
-
-  private void duplicateError(int line_number, String name) {
-    System.err.println(line_number + ": error: duplicate class: " + name);
-    good = false;
   }
 
   // MainClass m;
@@ -107,7 +98,7 @@ public class CodegenVisitor implements Visitor {
   // Type t;
   // Identifier i;
   public void visit(VarDecl n) {
-
+    // unnecessary
   }
 
   // Type t;
@@ -136,24 +127,24 @@ public class CodegenVisitor implements Visitor {
   // Type t;
   // Identifier i;
   public void visit(Formal n) {
-
+    // unneccessary
   }
 
   public void visit(IntArrayType n) {
-
+    // unneccessary
   }
 
   public void visit(BooleanType n) {
- 
+    // unneccessary
   }
 
   public void visit(IntegerType n) {
-
+    // unneccessary
   }
 
   // String s;
   public void visit(IdentifierType n) {
-
+    // unneccessary
   }
 
   // StatementList sl;
@@ -247,12 +238,12 @@ public class CodegenVisitor implements Visitor {
     p("popq %rax");
     p("jl lessthan" + uniqueId);  // if e1-e2<0, then e1 < e2
     p("movq $0,%rax");  // e1 >= e2
-    p("jmp done" + uniqueId);
+    p("jmp ltdone" + uniqueId);
 
     p("lessthan" + uniqueId + ":");  // e1 < e2
     p("movq $1,%rax");
 
-    p("done" + uniqueId + ":");
+    p("ltdone" + uniqueId + ":");
   }
 
   // Exp e1,e2;
@@ -321,10 +312,10 @@ public class CodegenVisitor implements Visitor {
       p("pushq %rbx"); // junk memory
       numParams++;
     }
-    if (n.e instanceof This) {
-      p("movq %rax,%rbx");
-    } else {
+    if (n.e instanceof NewObject) {
       p("movq (%rax),%rbx");
+    } else {
+      p("movq %rax,%rbx");
     }
     p("pushq %rbx"); // rbx should not be changed in evaluating expressions
     for (int i = 0; i < n.el.size(); i++) {
@@ -400,6 +391,6 @@ public class CodegenVisitor implements Visitor {
 
   // String s;
   public void visit(Identifier n) {
-
+    // unnecesary
   }
 }
