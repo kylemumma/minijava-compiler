@@ -347,7 +347,13 @@ public class CodegenVisitor implements Visitor {
 
   // String s;
   public void visit(IdentifierExp n) {
-    callClass = ((ClassType)scope.st.Lookup(n.s)).st;
+    Type idtype = scope.st.Lookup(n.s);
+    if (idtype instanceof ClassType) {
+      callClass = ((ClassType)idtype).st;
+    } else {
+      callClass = null;
+    }
+    //callClass = ((ClassType)gst.Lookup(n.s)).st;
     Type t = scope.st.Lookup(n.s);
     p("movq " + -t.offset+"(%rbp)" + ",%rax");
   }
@@ -373,7 +379,6 @@ public class CodegenVisitor implements Visitor {
 
   // Identifier i;
   public void visit(NewObject n) {
-    // @todo will need to change num_bytes param once fields become a thing
     ClassType ct = (ClassType)gst.Lookup(n.i.s);
     callClass = ct.st;
     p("movq $" + ct.sz +",%rdi");
