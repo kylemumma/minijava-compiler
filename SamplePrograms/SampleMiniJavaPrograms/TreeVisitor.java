@@ -17,7 +17,9 @@ class TV {
 	MyVisitor v ;
 
 	root = new Tree();
+	System.out.println(1);
 	ntb = root.Init(16);
+	System.out.println(1);
 	ntb = root.Print();
 	System.out.println(100000000);
 	ntb = root.Insert(8) ;

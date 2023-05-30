@@ -5,23 +5,27 @@ class Basic {
 }
 
 class YoMama {
-    int oogabooga;
+    int field;
     public int potato() {
-        YoMama k;
-        int a;
-        oogabooga = 2;
-        System.out.println(this.aa());
-        k = new YoMama();
-        System.out.println(k.aa());
-        System.out.println(k.aa());
-        System.out.println(this.aa());
-        System.out.println(new YoMama().aa());
-        return 5;   
+        YoMama a;
+        YoMama b;
+        a = new YoMama();
+        b = new YoMama();
+        a = a.yummy(a);
+        return 0;
+
+
     }
 
-    public int aa() {
-        return oogabooga;
+    public YoMama yummy(YoMama y) {
+        field = y.get();
+        return y;
     }
+
+    public int get() {
+        return field;
+    }
+
 }
 
 

@@ -213,8 +213,9 @@ public class CodegenVisitor implements Visitor {
       genbin("movq", "%rax", -idtype.offset+"(%rbp)");
     } else {
       getThis();
-      p("movq %rax,%rdi");
+      p("pushq %rax");
       n.e.accept(this);
+      p("popq %rdi");
       genbin("movq", "%rax", idtype.offset+"(%rdi)");
     }
   }
