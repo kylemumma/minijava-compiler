@@ -223,21 +223,61 @@ public class CodegenVisitor implements Visitor {
   // Identifier i;
   // Exp e1,e2;
   public void visit(ArrayAssign n) {
-    // bounds check
-    n.i.accept(this);
-    p("pushq %rax");
-    p("pushq %rax");
-    n.e1.accept(this);
-    p("popq %rdx");
-    p("movq %rdx,%rdi");
-    p("movq %rax,%rsi");
-    p("pushq %rax");
-    p("call check_arr_bounds");
+    Type idtype = scope.st.LookupHere(n.i.s);
+    boolean local = true;
+    if (idtype instanceof UnknownType) {
+      // is a field, not a local variable
+      idtype = scope.st.Lookup(n.i.s);
+      local = false;
+    }
+    
+    if (local) {
+      n.e1.accept(this);
+      p("pushq %rax");
+      n.e2.accept(this);
+      p("popq %rdx");
+      p("movq %rbp,%rdi");
+      p("subq $" + idtype.offset + ",%rdi");
+      p("movq (%rdi),%rdi");
 
-    n.e2.accept(this);
-    p("popq %rdx");
-    p("popq %rdi");
-    p("movq %rax,(%rdi,%rdx,8)");
+      // bounds check
+      p("movq %rdx,%rsi");
+      p("pushq %rax");
+      p("pushq %rdi");
+      p("pushq %rdx");
+      p("pushq %rdx");
+      p("call check_arr_bounds");
+      p("popq %rdx");
+      p("popq %rdx");
+      p("popq %rdi");
+      p("popq %rax");
+
+      p("movq %rax,(%rdi,%rdx,8)");
+    } else {
+      n.e1.accept(this);
+      p("pushq %rax");
+      getThis();
+      p("pushq %rax");
+      n.e2.accept(this);
+      p("popq %rdi");
+      p("popq %rdx");
+      p("addq $" + idtype.offset + ",%rdi");
+      p("movq (%rdi),%rdi");
+
+      // bounds check
+      p("movq %rdx,%rsi");
+      p("pushq %rax");
+      p("pushq %rdi");
+      p("pushq %rdx");
+      p("pushq %rdx");
+      p("call check_arr_bounds");
+      p("popq %rdx");
+      p("popq %rdx");
+      p("popq %rdi");
+      p("popq %rax");
+
+      p("movq %rax,(%rdi,%rdx,8)");
+    }
   }
 
   // Exp e1,e2;
