@@ -1,0 +1,9 @@
+CSE 401 23sp Project IV - Codegen
+
+Wrong fields are looked-up when objects are passed by reference.  (-2)
+
+The compiler segfaults on multiple given Sample MiniJava programs. (-4)
+
+Compiler incorrectly wrote non-assembly code (ex:  semantics error statements) into the assembly output file. (-2)
+
+Total: 74/82
