@@ -11,11 +11,11 @@ This project uses the ant build system. It can be built using:
 $ant
 
 once its build you can run the binary as:
-$java -cp build/classes:lib/java-cup-11b.jar MiniJava <option> <filename>
+$java -cp build/classes:lib/java-cup-11b.jar MiniJava \<option\> \<filename\>
 
-filename is the minijava file you want to compile.
+\<filename\> is the minijava file you want to compile.
 
-compiler options are as follows:
+\<option\> compiler options are as follows:
 - no option, will do all compilation steps and output compiled x86-64 to stdout
 - -S, will only do scanning phase of compiler and output tokens to stdout
 - -P, does scanning and parsing, prints the AST to stdout
